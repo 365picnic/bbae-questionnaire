@@ -29,6 +29,7 @@
 
 var SHEET_NAME = '문진응답';
 var SHEET_NAME_DIET = '다이어트문진응답';
+var SHEET_NAME_SKIN = '피부문진응답';
 
 // 관리 페이지(admin.html)에서 답변 목록을 조회할 때 쓰는 비밀번호.
 // 이 파일은 공개 저장소에 있으므로 코드에 적지 않고, Apps Script 편집기 좌측 톱니바퀴(프로젝트 설정) >
@@ -59,6 +60,14 @@ function doPost(e) {
   // 관리자페이지 다이어트문진 탭의 "AI 다이어트 분석" 버튼
   if (data.action === 'diet_ai_analyze') {
     return handleDietAiAnalyze_(data);
+  }
+  // 관리자페이지 피부문진 탭의 "AI 피부 분석" 버튼
+  if (data.action === 'skin_ai_analyze') {
+    return handleSkinAiAnalyze_(data);
+  }
+  // 피부미용 문진(skin.html)에서 접수된 신규 제출 - 별도 시트에 저장
+  if (data.formType === 'skin') {
+    return handleSkinSubmit_(data);
   }
   // 다이어트 문진(diet.html)에서 접수된 신규 제출 - 별도 시트에 저장
   if (data.formType === 'diet') {
@@ -130,6 +139,85 @@ function handleDietSubmit_(data) {
   sheet.getRange(lastRow, 4).setNumberFormat('@').setValue(data.birth_date || '');
 
   return jsonOutput_({ status: 'ok' });
+}
+
+// 피부미용 문진(skin.html)의 신규 제출을 별도 시트("피부문진응답")에 저장합니다.
+function handleSkinSubmit_(data) {
+  var sheet = getOrCreateSkinSheet_();
+
+  sheet.appendRow([
+    new Date(),
+    data.name || '',
+    data.phone || '',
+    data.birth_date || '',
+    data.gender || '',
+    data.summary || '',
+    data.raw || '',
+    '', // 원장 메모(JSON) - 접수 시점에는 비어있고, 상담 중 관리자페이지에서 채워집니다.
+    ''  // AI 분석 결과(JSON) - AI 피부 분석을 실행하면 채워집니다.
+  ]);
+
+  var lastRow = sheet.getLastRow();
+  sheet.getRange(lastRow, 1, 1, 9).setWrapStrategy(SpreadsheetApp.WrapStrategy.CLIP);
+  sheet.setRowHeight(lastRow, 21);
+
+  // 전화번호/생년월일이 숫자·날짜로 자동 변환되지 않도록 텍스트 서식으로 고정합니다. (다른 문진과 동일한 이유)
+  sheet.getRange(lastRow, 3).setNumberFormat('@').setValue(data.phone || '');
+  sheet.getRange(lastRow, 4).setNumberFormat('@').setValue(data.birth_date || '');
+
+  return jsonOutput_({ status: 'ok' });
+}
+
+// 관리자페이지 피부문진 탭의 "AI 피부 분석" 버튼 — 나이·성별·문진 답변·상담메모와 한의원의 시술 목록을
+// Gemini에 보내 상담 준비 자료를 받습니다. 이름·전화번호는 보내지 않습니다(admin.html이 애초에 넣지 않음).
+// 시술 목록은 admin.html이 questions-skin.js에서 만들어 보내므로, 가격이 바뀌어도 이 파일은 고칠 필요가 없습니다.
+// 결과는 진단이 아니라 원장님 상담을 돕는 참고자료이며, 해당 환자 줄의 "AI 분석 결과(JSON)" 칸(I열)에 저장합니다.
+function handleSkinAiAnalyze_(data) {
+  if (!data.key || data.key !== ADMIN_KEY) {
+    return jsonOutput_({ status: 'error', message: 'invalid key' });
+  }
+  var apiKey = PropertiesService.getScriptProperties().getProperty('GEMINI_API_KEY');
+  if (!apiKey) {
+    return jsonOutput_({ status: 'error', message: 'API 키가 설정되지 않았습니다. Apps Script 편집기 좌측 톱니바퀴(프로젝트 설정) > 스크립트 속성에 GEMINI_API_KEY를 추가해주세요.' });
+  }
+
+  var systemPrompt =
+    '당신은 한의원 피부미용 클리닉 원장의 상담 준비를 돕는 보조 도구입니다. 아래 환자의 피부 문진 답변과 원장 상담메모를 ' +
+    '분석해서, 원장이 상담 전에 빠르게 파악할 수 있도록 정리하세요. 진단이나 시술을 확정하는 것이 아니라 참고자료이며, ' +
+    '최종 판단은 반드시 원장이 직접 합니다.\n' +
+    '- current_status: 환자의 피부 상태와 핵심 고민, 기대 수준을 3~4문장으로 요약.\n' +
+    '- problems: 우선순위가 높은 피부 문제. 각 문제마다 문진 답변 중 어떤 근거에서 그렇게 판단했는지 evidence에 적으세요. 2~5개.\n' +
+    '- recommended: 아래 [시술 목록]에서만 고른 후보 시술 2~5개를 우선순위대로 제시. name에는 목록의 시술 이름을 글자 ' +
+    '그대로 쓰고, 목록에 없는 시술은 절대 추천하지 마세요. reason에는 왜 이 환자에게 맞는지, 회복 기간·중요한 일정과 ' +
+    '충돌하지 않는지를 1~2문장으로 적으세요.\n' +
+    '- caution_treatments: 환자의 답변(임신·수유, 켈로이드, 헤르페스, 혈액을 묽게 하는 약, 로아큐탄, 최근 시술, 몸속 장치, ' +
+    '알레르기 등) 때문에 피하거나 미루거나 특히 주의할 시술 또는 시술 종류와 그 이유. 없으면 빈 배열.\n' +
+    '- safety_checks: 시술 전 원장이 반드시 확인할 안전 관련 사항. 없으면 빈 배열.\n' +
+    '- questions_to_ask: 판단이 애매하거나 정보가 부족해서 상담 때 추가로 물어보면 좋은 질문과 그 이유. 1~4개.\n' +
+    '문진 답변에 근거한 내용만 쓰고, 답이 없는 부분은 추측하지 말고 questions_to_ask로 돌리세요. ' +
+    '시술 효과를 단정하지 마세요. 가격은 언급하지 마세요. 간결한 한국어로 쓰세요.\n' +
+    '반드시 아래 JSON 형식으로만 응답하고, 코드블록 표시(```) 없이 순수 JSON 텍스트만 출력하세요.\n' +
+    '{"current_status":"...",' +
+    '"problems":[{"title":"문제(짧게)","evidence":"문진 근거","detail":"설명 1~2문장"}],' +
+    '"recommended":[{"name":"시술 목록의 이름 그대로","reason":"이유"}],' +
+    '"caution_treatments":[{"name":"시술 또는 시술 종류","reason":"이유"}],' +
+    '"safety_checks":["확인할 사항"],' +
+    '"questions_to_ask":[{"question":"질문","reason":"이유"}]}\n\n' +
+    '[시술 목록]\n' + (data.catalog || '(없음)');
+
+  var result = callGeminiJson_(apiKey, systemPrompt, '환자 정보:\n' + (data.patientData || ''));
+  if (result.error) {
+    return jsonOutput_({ status: 'error', message: result.error });
+  }
+
+  var rowNum = parseInt(data.rowNum, 10);
+  if (rowNum) {
+    var sheet = getOrCreateSkinSheet_();
+    if (rowNum >= 2 && rowNum <= sheet.getLastRow()) {
+      sheet.getRange(rowNum, 9).setValue(JSON.stringify(result.json));
+    }
+  }
+  return jsonOutput_({ status: 'ok', result: result.json });
 }
 
 // 관리자페이지 다이어트문진 탭의 "AI 다이어트 분석" 버튼 — 환자의 신상(나이·성별·키·몸무게·감량목표)과
@@ -245,16 +333,22 @@ function ensureDietAiColumn_(sheet) {
 // 관리자페이지(admin.html)에서 "저장" 버튼을 눌렀을 때 실행되는 부분.
 // 원장님만 접근 가능하도록 ADMIN_KEY 를 반드시 확인한 뒤, 요청에 실제로 담겨 온
 // 항목만 해당 환자의 행 번호(rowNum)에 덮어씁니다. (문진 답변 수정 / 주증상·메모 저장 공용)
-// data.formType이 'diet'면 다이어트문진응답 시트를, 아니면(기본값) 한약 문진 시트를 사용합니다.
+// data.formType이 'diet'면 다이어트문진응답, 'skin'이면 피부문진응답, 아니면(기본값) 한약 문진 시트를 사용합니다.
 function handleUpdate_(data) {
   if (!data.key || data.key !== ADMIN_KEY) {
     return jsonOutput_({ status: 'error', message: 'invalid key' });
   }
   var rowNum = parseInt(data.rowNum, 10);
   var isDiet = data.formType === 'diet';
-  var sheet = isDiet ? getOrCreateDietSheet_() : getOrCreateSheet_();
+  var sheet = sheetForForm_(data.formType);
   if (!rowNum || rowNum < 2 || rowNum > sheet.getLastRow()) {
     return jsonOutput_({ status: 'error', message: 'invalid rowNum' });
+  }
+  if (data.formType === 'skin') {
+    if (data.summary !== undefined) sheet.getRange(rowNum, 6).setValue(data.summary || '');  // 문진 요약
+    if (data.raw !== undefined) sheet.getRange(rowNum, 7).setValue(data.raw || '');           // 원본데이터(JSON)
+    if (data.notes !== undefined) sheet.getRange(rowNum, 8).setValue(data.notes || '');       // 원장 메모(JSON)
+    return jsonOutput_({ status: 'ok' });
   }
   if (isDiet) {
     if (data.summary !== undefined) sheet.getRange(rowNum, 11).setValue(data.summary || '');  // 문진 요약
@@ -281,7 +375,7 @@ function handleDelete_(data) {
     return jsonOutput_({ status: 'error', message: 'invalid key' });
   }
   var rowNum = parseInt(data.rowNum, 10);
-  var sheet = data.formType === 'diet' ? getOrCreateDietSheet_() : getOrCreateSheet_();
+  var sheet = sheetForForm_(data.formType);
   if (!rowNum || rowNum < 2 || rowNum > sheet.getLastRow()) {
     return jsonOutput_({ status: 'error', message: 'invalid rowNum' });
   }
@@ -455,6 +549,9 @@ function doGet(e) {
   if (e.parameter.type === 'diet') {
     return doGetDiet_();
   }
+  if (e.parameter.type === 'skin') {
+    return doGetSkin_();
+  }
 
   var sheet = getOrCreateSheet_();
   var lastRow = sheet.getLastRow();
@@ -508,6 +605,31 @@ function doGetDiet_() {
       raw: row[11],
       doctorNotes: row[12],
       aiResult: row[13]
+    };
+  }).reverse();
+  return jsonOutput_(records);
+}
+
+// 관리자페이지의 "피부문진" 탭에서 목록을 불러올 때 사용합니다 (doGet에서 type=skin일 때 호출).
+function doGetSkin_() {
+  var sheet = getOrCreateSkinSheet_();
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) {
+    return jsonOutput_([]);
+  }
+  var values = sheet.getRange(2, 1, lastRow - 1, 9).getValues();
+  var records = values.map(function (row, i) {
+    return {
+      rowNum: i + 2,
+      submittedAt: row[0] ? new Date(row[0]).toISOString() : '',
+      name: row[1],
+      phone: row[2],
+      birthDate: formatDateCell_(row[3]),
+      gender: row[4],
+      summary: row[5],
+      raw: row[6],
+      doctorNotes: row[7],
+      aiResult: row[8]
     };
   }).reverse();
   return jsonOutput_(records);
@@ -594,6 +716,31 @@ function getOrCreateDietSheet_() {
     sheet.getRange(1, 1, 1, 13).setFontWeight('bold');
   }
   return sheet;
+}
+
+// 피부미용 문진(skin.html) 응답을 저장하는 시트. 다른 문진과 열 구성이 달라 별도 시트를 씁니다.
+function getOrCreateSkinSheet_() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(SHEET_NAME_SKIN);
+  if (!sheet) {
+    sheet = ss.insertSheet(SHEET_NAME_SKIN);
+  }
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow([
+      '제출일시', '이름', '전화번호', '생년월일', '성별', '문진 요약', '원본데이터(JSON, 백업용)',
+      '원장 메모(JSON)', 'AI 분석 결과(JSON)'
+    ]);
+    sheet.setFrozenRows(1);
+    sheet.getRange(1, 1, 1, 9).setFontWeight('bold');
+  }
+  return sheet;
+}
+
+// 문진 종류(formType)에 맞는 시트를 돌려줍니다. 수정/삭제처럼 세 문진이 같은 방식으로 동작하는 곳에서 씁니다.
+function sheetForForm_(formType) {
+  if (formType === 'skin') return getOrCreateSkinSheet_();
+  if (formType === 'diet') return getOrCreateDietSheet_();
+  return getOrCreateSheet_();
 }
 
 // 이 코드를 처음 붙여넣기 전부터 시트에 응답이 쌓여 있었다면, L열(AI 추천 결과) 헤더가

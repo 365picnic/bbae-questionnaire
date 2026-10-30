@@ -39,6 +39,10 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-seri
 .header .logo-img { height: 36px; width: auto; }
 .header .logo-img.sm { height: 26px; }
 .header.slim { padding: 10px 0; }
+/* 첫 화면 상단 사진 - 사진 안에 로고가 있어 첫 화면에서는 로고 머리글 대신 사진만 둡니다 */
+.banner { border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 16px; box-shadow: var(--shadow-md); }
+.banner img { width: 100%; display: block; }
+.page-title { text-align: center; font-size: 18px; font-weight: 800; color: var(--ink-900); margin-bottom: 16px; letter-spacing: -0.01em; }
 .progress-bar { width: 100%; height: 6px; background: var(--line-soft); border-radius: 4px; margin-bottom: 8px; overflow: hidden; }
 .progress-fill { height: 100%; background: linear-gradient(90deg, var(--rose), var(--rose-2)); border-radius: 4px; transition: width 0.4s ease; }
 .progress-text { text-align: right; font-size: 11.5px; color: var(--ink-300); margin-bottom: 18px; }
@@ -93,10 +97,10 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-seri
 <body>
 <div class="container" id="app">
     <div id="phase-login">
-        <div class="header">
-            <img class="logo-img" src="assets/bbae-logo.png" alt="빼빼한의원">
-            <div class="sub">피부미용 사전문진</div>
+        <div class="banner">
+            <img src="assets/skin-banner.webp" alt="빼빼한의원 다이어트·스킨 클리닉">
         </div>
+        <div class="page-title">피부미용 사전문진</div>
         <div class="intro">
             피부 상태와 시술 이력을 미리 알려주시면 <b>더 정확한 상담</b>을 받으실 수 있습니다.<br>
             건강 관련 문항은 안전한 시술을 위해 꼭 필요하니 빠짐없이 답해주세요.

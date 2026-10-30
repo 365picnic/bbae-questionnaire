@@ -1,0 +1,2791 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>빼빼한의원 - 문진 관리</title>
+<style>
+:root {
+  --brand-1: #137a45;
+  --brand-2: #1aaa5f;
+  --brand-soft: #e8f6ee;
+  --ink-900: #1e2233;
+  --ink-700: #454b5f;
+  --ink-500: #757c92;
+  --ink-300: #aeb3c4;
+  --line: #e4e6f0;
+  --line-soft: #eef0f7;
+  --bg: #f4f5fa;
+  --surface: #ffffff;
+  --danger: #d64559;
+  --danger-soft: #fdeef0;
+  --success: #1f9d63;
+  --warn: #a9750f;
+  --warn-soft: #fdf3e2;
+  --warn-line: #f2e3ba;
+  --shadow-sm: 0 1px 3px rgba(24, 28, 56, 0.05);
+  --shadow-md: 0 10px 28px rgba(28, 32, 64, 0.08);
+  --shadow-lg: 0 18px 44px rgba(28, 32, 64, 0.14);
+  --radius-lg: 18px;
+  --radius-md: 14px;
+  --radius-sm: 10px;
+  --c-teal: #0d9488;
+  --c-teal-soft: #e1f6f2;
+  --c-pink: #db2777;
+  --c-pink-soft: #fce7f3;
+  --c-blue: #2563eb;
+  --c-blue-soft: #dbeafe;
+  --c-orange: #ea580c;
+  --c-orange-soft: #ffedd5;
+  --c-violet: #7c3aed;
+  --c-violet-soft: #f1e9fd;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-serif; background: var(--bg); color: var(--ink-900); -webkit-font-smoothing: antialiased; }
+
+/* ===== 대시보드 ===== */
+.topbar { background: var(--surface); border-bottom: 4px solid transparent; border-image: linear-gradient(90deg, var(--c-violet), var(--c-pink), var(--c-orange), var(--c-teal), var(--c-blue)) 1; padding: 10px 22px; display: flex; justify-content: space-between; align-items: center; height: 52px; box-shadow: var(--shadow-md); }
+.topbar .brand { font-weight: 700; font-size: 15px; color: var(--ink-900); letter-spacing: -0.01em; display: flex; align-items: center; gap: 8px; }
+.topbar .brand span { color: var(--brand-2); }
+.topbar .brand .brand-logo { height: 20px; width: auto; }
+.topbar .right { display: flex; align-items: center; gap: 14px; font-size: 12px; color: var(--ink-500); }
+.topbar button { background: linear-gradient(135deg, var(--brand-1), var(--brand-2)); color: #fff; border: none; padding: 7px 16px; border-radius: var(--radius-sm); cursor: pointer; font-size: 12.5px; font-weight: 700; transition: box-shadow .15s; box-shadow: var(--shadow-sm); }
+.topbar button:hover { box-shadow: var(--shadow-md); }
+
+.layout { display: flex; height: calc(100vh - 52px); }
+.sidebar { width: 300px; background: var(--surface); border-right: 1px solid var(--line); display: flex; flex-direction: column; }
+.sidebar-hdr { padding: 12px; border-bottom: 1px solid var(--line-soft); }
+.sidebar-hdr input { width: 100%; padding: 9px 12px; border: 1.5px solid var(--line); border-radius: var(--radius-sm); font-size: 13px; margin-top: 10px; }
+.sidebar-hdr input:focus { outline: none; border-color: var(--brand-2); }
+.form-tabs { display: flex; gap: 8px; }
+.form-tab { flex: 1; padding: 9px 4px; text-align: center; border-radius: var(--radius-sm); font-size: 12.5px; font-weight: 700; cursor: pointer; border: 1.5px solid var(--line); color: var(--ink-500); background: var(--surface); transition: all .15s; }
+.form-tab:hover { border-color: var(--brand-2); }
+.form-tab.herbal.active { background: linear-gradient(135deg, var(--brand-1), var(--brand-2)); color: #fff; border-color: transparent; box-shadow: var(--shadow-sm); }
+.form-tab.diet.active { background: linear-gradient(135deg, var(--c-orange), #f59e0b); color: #fff; border-color: transparent; box-shadow: var(--shadow-sm); }
+.p-list { flex: 1; overflow-y: auto; }
+.p-item { padding: 12px 16px; border-bottom: 1px solid var(--line-soft); cursor: pointer; transition: background .1s; display: flex; gap: 10px; align-items: flex-start; }
+.p-item:hover { background: #f7f8fd; }
+.p-item:hover .p-del { opacity: 1; }
+.p-item.active { background: var(--brand-soft); border-left: 4px solid var(--c-violet); padding-left: 12px; }
+.p-item .p-num { font-size: 11px; font-weight: 700; color: var(--ink-300); min-width: 18px; flex-shrink: 0; margin-top: 1px; }
+.p-item .p-body { flex: 1; min-width: 0; }
+.p-item .nm { font-weight: 700; font-size: 13.5px; display: flex; align-items: center; gap: 6px; color: var(--ink-900); }
+.p-item .nm .gender-tag { font-size: 10.5px; font-weight: 700; padding: 1px 6px; border-radius: 8px; background: var(--line-soft); color: var(--ink-500); }
+.p-item .nm .gender-tag.male, .patient-card .name .gender-tag.male { background: var(--c-blue-soft); color: var(--c-blue); }
+.p-item .nm .gender-tag.female, .patient-card .name .gender-tag.female { background: var(--c-pink-soft); color: var(--c-pink); }
+.p-item .nm .gender-tag.child, .patient-card .name .gender-tag.child { background: var(--c-teal-soft); color: var(--c-teal); }
+.p-item .inf { font-size: 11.5px; color: var(--ink-500); margin-top: 3px; }
+.p-item .tm { font-size: 10.5px; color: var(--ink-300); margin-top: 2px; }
+.p-item .p-del { flex-shrink: 0; opacity: 0; transition: opacity .15s; background: none; border: none; color: var(--ink-300); font-size: 15px; cursor: pointer; padding: 2px 6px; border-radius: 6px; }
+.p-item .p-del:hover { color: #fff; background: var(--danger); }
+.empty-list { padding: 30px 16px; text-align: center; color: var(--ink-300); font-size: 13px; }
+
+.detail { flex: 1; overflow-y: auto; padding: 26px 34px; }
+.detail-empty { display: flex; align-items: center; justify-content: center; height: 100%; color: var(--ink-300); font-size: 14px; }
+
+.patient-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 20px 24px; margin-bottom: 18px; display: flex; flex-wrap: wrap; gap: 22px 34px; align-items: center; box-shadow: var(--shadow-sm); }
+.patient-card .name { font-size: 20px; font-weight: 800; letter-spacing: -0.01em; }
+.patient-card .name .gender-tag { font-size: 11px; font-weight: 700; margin-left: 8px; padding: 2px 9px; border-radius: 10px; background: var(--brand-soft); color: var(--brand-2); vertical-align: middle; }
+.patient-card { border-top: 4px solid var(--c-violet); }
+.patient-card .field { font-size: 12px; color: var(--ink-500); }
+.patient-card .field b { display: block; font-size: 14px; color: var(--ink-900); font-weight: 700; margin-top: 2px; }
+.patient-card .field .vital-hint { font-size: 10px; color: var(--c-orange); font-weight: 600; }
+.patient-card .field b.vital-edit { display: flex; align-items: center; gap: 4px; }
+.vital-input { width: 56px; border: 1.5px solid var(--c-orange-soft); background: var(--c-orange-soft); border-radius: 6px; padding: 3px 6px; font-size: 13px; font-weight: 700; color: var(--ink-900); font-family: inherit; }
+.vital-input:focus { outline: none; border-color: var(--c-orange); background: var(--surface); }
+.patient-card .copy-btn { margin-left: auto; background: var(--brand-soft); color: var(--brand-1); border: none; padding: 9px 16px; border-radius: var(--radius-sm); font-size: 12.5px; font-weight: 700; cursor: pointer; transition: background .15s; }
+.patient-card .copy-btn:hover { background: #e2e5f9; }
+
+.bmi-section { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--c-teal); border-radius: var(--radius-md); padding: 16px 20px; margin-bottom: 18px; box-shadow: var(--shadow-sm); }
+.bmi-section h3 { font-size: 13px; color: var(--c-teal); margin-bottom: 10px; font-weight: 700; }
+.bmi-bar { display: flex; gap: 8px; align-items: flex-end; justify-content: center; flex-wrap: wrap; }
+.bmi-item { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 8px 6px; border-radius: var(--radius-sm); min-width: 72px; }
+.bmi-circle { width: 66px; height: 66px; border-radius: 50%; background: var(--bg); display: flex; align-items: center; justify-content: center; border: 2px solid var(--line); transition: all .15s; }
+.bmi-circle-active { background: var(--brand-soft); border: 3px solid var(--brand-1); box-shadow: 0 0 0 3px rgba(47,59,143,0.14); }
+.bmi-item .bmi-label { font-size: 11px; color: var(--ink-500); white-space: nowrap; font-weight: 600; }
+.bmi-item .bmi-val { font-size: 10px; color: var(--ink-300); }
+.bmi-item.active .bmi-label { color: var(--brand-1); }
+.bmi-item.active .bmi-val { color: var(--brand-1); font-weight: 600; }
+.bmi-note { font-size: 11.5px; color: var(--ink-300); text-align: center; margin-top: 8px; }
+
+/* 체성분(체중/골격근량/체지방량) 측정 기록 + 변화 추이 그래프 - 다이어트 탭 전용 */
+.bc-section { border-left-color: var(--c-blue); }
+.bc-section h3 { color: var(--c-blue); }
+.bc-section .sub { font-size: 11.5px; color: var(--ink-300); margin-bottom: 12px; }
+.bc-chart { width: 100%; overflow-x: auto; }
+.bc-gridtitle { font-size: 12.5px; font-weight: 800; color: var(--ink-900); margin: 2px 0 8px; }
+.bc-grid svg { border: 1px solid var(--line); border-radius: 8px; }
+.bc-legend { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; margin: 8px 0 4px; font-size: 12px; color: var(--ink-700); }
+.bc-leg { display: inline-flex; align-items: center; gap: 5px; }
+.bc-leg i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+.bc-leg b { color: var(--ink-900); }
+.bc-delta { font-weight: 700; font-size: 11.5px; padding: 1px 6px; border-radius: 8px; }
+.bc-delta.up-good { background: var(--c-teal-soft); color: var(--c-teal); }
+.bc-delta.down-bad { background: var(--danger-soft); color: var(--danger); }
+.bc-empty { text-align: center; color: var(--ink-300); font-size: 12.5px; padding: 24px 0; }
+.bc-note { font-size: 11px; color: var(--ink-500); margin: 6px 0; text-align: center; }
+.bc-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
+.bc-table th { background: var(--bg); color: var(--ink-500); font-weight: 700; padding: 6px 8px; text-align: center; border-bottom: 1px solid var(--line); }
+.bc-table td { padding: 6px 8px; text-align: center; border-bottom: 1px solid var(--line-soft); color: var(--ink-900); }
+.bc-table td.bc-memo { text-align: left; color: var(--ink-500); }
+.bc-del { background: none; border: none; color: var(--ink-300); cursor: pointer; font-size: 13px; padding: 2px 6px; border-radius: 6px; }
+.bc-del:hover { background: var(--danger); color: #fff; }
+.bc-form { display: flex; flex-wrap: wrap; gap: 10px 12px; align-items: flex-end; margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--line); }
+.bc-form label { display: flex; flex-direction: column; gap: 3px; font-size: 11px; color: var(--ink-500); font-weight: 600; }
+.bc-form input { border: 1.5px solid var(--line); border-radius: 8px; padding: 6px 8px; font-size: 12.5px; font-family: inherit; width: 104px; }
+.bc-form input:focus { outline: none; border-color: var(--c-blue); }
+.bc-form input[type="date"] { width: 160px; }
+.bc-form .bc-memo-in input { width: 160px; }
+.bc-add { background: linear-gradient(135deg, var(--c-blue), var(--c-violet)); color: #fff; border: none; padding: 8px 16px; border-radius: 8px; font-size: 12.5px; font-weight: 700; cursor: pointer; }
+.bc-add:hover { box-shadow: var(--shadow-sm); }
+.bc-src { border: 1.5px solid var(--line); border-radius: 8px; padding: 6px 8px; font-size: 12.5px; font-family: inherit; background: var(--surface); }
+.bc-src:focus { outline: none; border-color: var(--c-blue); }
+.bc-table .src-tag { font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 7px; }
+.bc-table .src-tag.clinic { background: var(--c-blue-soft); color: var(--c-blue); }
+.bc-table .src-tag.self { background: var(--c-orange-soft); color: var(--c-orange); }
+.bc-caption { font-size: 10.5px; color: var(--ink-300); text-align: center; margin-top: 3px; }
+
+/* 진료 방식(직접 내원 / 전화 비대면) - 원장이 상세 화면에서 표시, 목록에 배지로 노출 */
+.vt-toggle { display: inline-flex; gap: 4px; margin-top: 2px; }
+.vt-btn { border: 1.5px solid var(--line); background: var(--surface); color: var(--ink-500); font-size: 11.5px; font-weight: 700; padding: 4px 12px; border-radius: 8px; cursor: pointer; font-family: inherit; }
+.vt-btn:hover { border-color: var(--c-blue); }
+.vt-btn.on { background: var(--c-blue); color: #fff; border-color: var(--c-blue); }
+.vt-btn.on.phone { background: var(--c-orange); border-color: var(--c-orange); }
+.p-item .visit-tag { font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 8px; }
+.p-item .visit-tag.clinic { background: var(--c-blue-soft); color: var(--c-blue); }
+.p-item .visit-tag.phone { background: var(--c-orange-soft); color: var(--c-orange); }
+
+/* 형색성정: 성향/면색/붉은기/기타/안진 - 모두 원장님이 진료 중 직접 판단해 표시 (자동 아님) */
+.hss-section { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--c-violet); border-radius: var(--radius-md); padding: 16px 20px; margin-bottom: 18px; box-shadow: var(--shadow-sm); }
+.hss-section h3 { font-size: 13px; color: var(--c-violet); margin-bottom: 4px; font-weight: 700; }
+.hss-section .sub { font-size: 11.5px; color: var(--ink-300); margin-bottom: 12px; }
+.hss-two { display: flex; gap: 28px; }
+.hss-left { flex: 1; min-width: 0; }
+.hss-right { flex: 1.15; min-width: 0; }
+.hss-sub { font-size: 11.5px; color: var(--ink-900); font-weight: 700; margin: 12px 0 6px; }
+.hss-sub:first-child { margin-top: 0; }
+.dot-scale { display: flex; align-items: center; gap: 6px; }
+.dot-scale .end-label { font-size: 11.5px; color: var(--ink-500); font-weight: 600; min-width: 30px; }
+.dot-scale .end-label.right { text-align: right; }
+.dot-btn { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--line); background: var(--surface); cursor: pointer; transition: all .15s; flex-shrink: 0; }
+.dot-btn:hover { border-color: var(--c-violet); }
+.dot-btn.active { background: var(--c-violet); border-color: var(--c-violet); }
+.tag-group { display: flex; gap: 6px; flex-wrap: wrap; }
+.tag-btn { padding: 5px 12px; border: 1.5px solid var(--line); border-radius: var(--radius-sm); font-size: 11.5px; cursor: pointer; background: var(--surface); color: var(--ink-900); transition: all .15s; }
+.tag-btn:hover { border-color: var(--c-violet); }
+.tag-btn.active { background: var(--c-violet); color: #fff; border-color: var(--c-violet); }
+.anjin-title { font-size: 11.5px; color: var(--ink-900); font-weight: 700; margin-bottom: 8px; }
+.anjin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 16px; }
+.anjin-item { display: flex; align-items: center; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid var(--line-soft); font-size: 11.5px; gap: 8px; }
+.anjin-item .aj-name { color: var(--ink-700); }
+.star-group { display: flex; gap: 1px; flex-shrink: 0; }
+.star-btn { font-size: 16px; color: var(--line); cursor: pointer; line-height: 1; transition: color .1s; }
+.star-btn.on { color: #f0b93d; }
+.star-btn:hover { color: #f0b93d; }
+
+.symptom-box { background: var(--warn-soft); border: 1px solid var(--warn-line); border-left: 4px solid var(--warn); border-radius: var(--radius-md); padding: 16px 20px; margin-bottom: 18px; }
+.symptom-box h3 { font-size: 13px; color: var(--warn); margin-bottom: 8px; font-weight: 700; }
+.symptom-box pre { white-space: pre-wrap; font-family: inherit; font-size: 13.5px; line-height: 1.7; color: #6b4f16; }
+
+/* 두 칸 레이아웃: 왼쪽 문진 내용 / 오른쪽 주증상·메모 */
+.two-col { display: flex; gap: 16px; align-items: flex-start; }
+.col-main { flex: 1; min-width: 0; }
+.col-side { width: 320px; flex-shrink: 0; }
+
+.side-box { background: var(--surface); border: 1px solid var(--line); border-top: 4px solid var(--c-blue); border-radius: var(--radius-md); padding: 16px; margin-bottom: 18px; box-shadow: var(--shadow-sm); }
+.side-box.cc { border-top-color: var(--c-orange); }
+.side-box.memo { border-top-color: var(--c-teal); }
+.side-box.ai { border-top-color: var(--c-violet); }
+.side-box.presc { border-top-color: var(--c-pink); }
+.side-box.ship { border-top-color: var(--c-blue); }
+.side-box-hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.side-box-hdr h3 { font-size: 13px; color: var(--ink-900); font-weight: 700; }
+.side-btn { background: linear-gradient(135deg, var(--brand-1), var(--brand-2)); color: #fff; border: none; padding: 5px 12px; border-radius: var(--radius-sm); font-size: 11.5px; font-weight: 700; cursor: pointer; transition: box-shadow .15s; }
+.side-btn:hover { box-shadow: var(--shadow-sm); }
+.side-btn.ghost { background: var(--brand-soft); color: var(--brand-1); }
+.side-btn.ghost:hover { background: #e2e5f9; }
+
+/* AI 처방 추천 */
+.ai-run-btn { width: 100%; background: linear-gradient(135deg, var(--c-violet), var(--c-pink)); color: #fff; border: none; padding: 11px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 700; cursor: pointer; box-shadow: var(--shadow-sm); transition: box-shadow .15s; }
+.ai-run-btn:hover { box-shadow: var(--shadow-md); }
+.ai-run-btn:disabled { opacity: .6; cursor: not-allowed; }
+.ai-status { font-size: 12px; color: var(--ink-500); margin-top: 8px; white-space: pre-wrap; word-break: break-all; }
+.ai-status.err { color: var(--danger); font-weight: 600; }
+.ai-note { font-size: 11px; color: var(--ink-300); margin-top: 6px; line-height: 1.5; }
+.ai-candidate { border: 1px solid var(--line-soft); border-radius: var(--radius-sm); padding: 10px 12px; margin-top: 10px; cursor: pointer; transition: border-color .15s, background .15s; }
+.ai-candidate:hover { border-color: var(--brand-2); background: #fbfbff; }
+.ai-cand-top { display: flex; align-items: baseline; gap: 8px; }
+.ai-cand-rank { font-size: 10.5px; font-weight: 700; color: #fff; background: var(--ink-300); border-radius: 8px; padding: 1px 7px; flex-shrink: 0; }
+.ai-candidate:nth-child(1) .ai-cand-rank { background: var(--brand-1); }
+.ai-cand-name { font-size: 13px; font-weight: 700; color: var(--ink-900); flex: 1; }
+.ai-cand-fit { font-size: 12.5px; font-weight: 700; color: var(--brand-1); }
+.ai-fit-bar { height: 5px; background: var(--line-soft); border-radius: 4px; margin: 6px 0; overflow: hidden; }
+.ai-fit-fill { height: 100%; background: linear-gradient(90deg, var(--brand-1), var(--brand-2)); border-radius: 4px; }
+.ai-cand-note { font-size: 11.5px; color: var(--ink-500); }
+.ai-toggle { font-size: 10.5px; color: var(--brand-2); margin-top: 6px; text-decoration: underline; }
+.ai-reasons { font-size: 11px; margin-top: 6px; line-height: 1.6; }
+.ai-reasons .m { color: var(--success); }
+.ai-reasons .x { color: var(--ink-500); }
+.ai-questions { margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--line); }
+.ai-questions h4 { font-size: 12px; color: var(--ink-900); margin-bottom: 6px; }
+.ai-questions ul { padding-left: 18px; }
+.ai-questions li { font-size: 11.5px; color: var(--ink-700); margin-bottom: 8px; line-height: 1.5; }
+.ai-q-reason { font-size: 10.5px; color: var(--ink-300); margin-top: 2px; }
+/* 다이어트문진 AI 분석 결과 */
+.dai-sec { margin-top: 12px; }
+.dai-sec h4 { font-size: 12px; color: var(--ink-900); margin-bottom: 6px; }
+.dai-status { font-size: 12px; color: var(--ink-700); line-height: 1.6; background: var(--line-soft); border-radius: var(--radius-sm); padding: 8px 10px; }
+.dai-item { font-size: 11.5px; color: var(--ink-700); line-height: 1.55; border-left: 3px solid var(--line); padding: 1px 0 1px 9px; margin-bottom: 8px; }
+.dai-item b { display: block; font-size: 12px; color: var(--ink-900); }
+.dai-item.prob { border-left-color: var(--danger); }
+.dai-item.sol { border-left-color: var(--success); }
+.dai-ev { font-size: 10.5px; color: var(--ink-300); margin-top: 2px; }
+.dai-safety { padding-left: 18px; }
+.dai-safety li { font-size: 11.5px; color: var(--danger); margin-bottom: 4px; line-height: 1.5; }
+
+/* 처방 기록 / 전화 예정일 - 원장님이 처방한 날짜와, 그 약 복용 10일쯤 후 상태 확인 전화 예정일을 관리 */
+.ship-add { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; align-items: center; }
+.ship-add input[type="date"] { border: 1.5px solid var(--line); border-radius: var(--radius-sm); padding: 7px 8px; font-size: 12px; font-family: inherit; color: var(--ink-900); }
+.ship-add input[type="text"] { flex: 1; min-width: 90px; border: 1.5px solid var(--line); border-radius: var(--radius-sm); padding: 7px 10px; font-size: 12px; font-family: inherit; color: var(--ink-900); }
+.ship-add input:focus { outline: none; border-color: var(--brand-2); }
+.ship-add button { flex-shrink: 0; }
+.ship-seq-group { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--ink-500); flex-shrink: 0; }
+.ship-seq-group input[type="number"] { width: 42px; border: 1.5px solid var(--line); border-radius: var(--radius-sm); padding: 7px 4px; text-align: center; font-size: 12px; font-family: inherit; color: var(--ink-900); }
+.ship-seq-group input[type="number"]:focus { outline: none; border-color: var(--brand-2); }
+.ship-seq-group label { display: inline-flex; align-items: center; gap: 4px; cursor: pointer; white-space: nowrap; }
+.ship-note { font-size: 11px; color: var(--ink-500); margin-top: 2px; }
+.ship-list { display: flex; flex-direction: column; gap: 8px; }
+.ship-row { border: 1px solid var(--line-soft); border-radius: var(--radius-sm); padding: 9px 11px; }
+.ship-row.done { opacity: .55; }
+.ship-row.overdue { border-color: var(--danger); background: var(--danger-soft); }
+.ship-main { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.ship-date { font-size: 12.5px; font-weight: 700; color: var(--ink-900); }
+.ship-memo { font-size: 11.5px; color: var(--ink-500); }
+.ship-sub { font-size: 11.5px; color: var(--ink-500); margin-top: 4px; }
+.ship-sub b { color: var(--c-orange); }
+.ship-actions { display: flex; gap: 6px; margin-top: 7px; }
+.ship-btn { background: var(--brand-soft); color: var(--brand-1); border: none; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; font-family: inherit; }
+.ship-btn.on { background: var(--success); color: #fff; }
+.ship-btn.fail.on { background: var(--danger); color: #fff; }
+.call-status-mark { font-size: 12px; font-weight: 800; margin-left: 2px; }
+.call-status-mark.success { color: var(--success); }
+.call-status-mark.fail { color: var(--danger); }
+.ship-del { background: none; border: none; color: var(--ink-300); font-size: 11px; cursor: pointer; padding: 4px 8px; border-radius: 8px; }
+.ship-del:hover { background: var(--danger); color: #fff; }
+.ship-empty { font-size: 12px; color: var(--ink-300); text-align: center; padding: 10px 0; }
+
+/* 처방·전화 달력 (모달) - 한약/다이어트 환자 전체를 아울러 언제 처방했고 언제 전화할지 한눈에 봄 */
+.cal-btn-wrap { position: relative; display: inline-flex; }
+.cal-badge-dot { position: absolute; top: -6px; right: -6px; background: var(--danger); color: #fff; font-size: 10px; font-weight: 700; min-width: 16px; height: 16px; border-radius: 8px; display: flex; align-items: center; justify-content: center; padding: 0 3px; }
+.cal-overlay { display: none; position: fixed; inset: 0; background: rgba(20, 22, 40, 0.45); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+.cal-overlay.open { display: flex; }
+.cal-card { background: var(--surface); border-radius: var(--radius-lg); width: min(920px, 100%); max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg); padding: 22px 26px; }
+.cal-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.cal-hdr h2 { font-size: 16px; font-weight: 800; }
+.cal-nav { display: flex; gap: 6px; align-items: center; }
+.cal-nav button { background: var(--brand-soft); color: var(--brand-1); border: none; padding: 6px 12px; border-radius: 8px; font-weight: 700; cursor: pointer; font-family: inherit; }
+.cal-close { background: none; border: none; font-size: 20px; color: var(--ink-300); cursor: pointer; line-height: 1; padding: 4px; }
+.cal-sub { font-size: 11.5px; color: var(--ink-300); margin-bottom: 14px; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+.cal-dow { text-align: center; font-size: 11.5px; font-weight: 700; color: var(--ink-500); padding-bottom: 4px; }
+.cal-cell { min-height: 68px; border: 1px solid var(--line); border-radius: 10px; padding: 6px; font-size: 10.5px; cursor: pointer; background: var(--surface); display: flex; flex-direction: column; gap: 3px; transition: border-color .1s, background .1s; }
+.cal-cell:hover { border-color: var(--brand-2); }
+.cal-cell.other-month { opacity: .35; cursor: default; }
+.cal-cell.today .cal-daynum { color: var(--brand-2); }
+.cal-cell.today { border-color: var(--brand-2); }
+.cal-cell.selected { background: var(--brand-soft); border-color: var(--brand-2); }
+.cal-cell.overdue { border-color: var(--danger); }
+.cal-daynum { font-weight: 700; color: var(--ink-900); }
+.cal-badge { font-size: 9.5px; font-weight: 700; border-radius: 6px; padding: 1px 5px; display: block; width: 100%; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; box-sizing: border-box; }
+.cal-badge.ship { background: var(--c-blue-soft); color: var(--c-blue); }
+.cal-badge.call { background: var(--c-orange-soft); color: var(--c-orange); }
+.cal-badge.call.done { background: var(--line-soft); color: var(--ink-300); }
+.cal-badge.call.fail { background: var(--danger-soft); color: var(--danger); }
+.cal-detail { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 14px; }
+.cal-detail h3 { font-size: 13px; margin-bottom: 10px; }
+.cal-event { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; padding: 9px 12px; border: 1px solid var(--line-soft); border-radius: 10px; margin-bottom: 8px; font-size: 12.5px; }
+.cal-ev-tag { font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 8px; margin-right: 6px; white-space: nowrap; }
+.cal-ev-tag.ship { background: var(--c-blue-soft); color: var(--c-blue); }
+.cal-ev-tag.call { background: var(--c-orange-soft); color: var(--c-orange); }
+.cal-ev-tag.call.done { background: var(--line-soft); color: var(--ink-300); }
+.cal-ev-tag.call.fail { background: var(--danger-soft); color: var(--danger); }
+.cal-event-sub { color: var(--ink-500); margin-top: 3px; font-size: 11.5px; }
+.cal-event-actions { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+.cal-event-edit { display: block; }
+.cal-add-form { border: 1.5px dashed var(--line); border-radius: var(--radius-md); padding: 12px; margin-bottom: 16px; }
+.cal-add-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.cal-add-row:last-child { margin-bottom: 0; }
+.cal-add-row select { flex: 1; min-width: 160px; border: 1.5px solid var(--line); border-radius: var(--radius-sm); padding: 7px 8px; font-size: 12px; font-family: inherit; color: var(--ink-900); }
+.cal-add-row input[type="text"] { flex: 1; min-width: 90px; border: 1.5px solid var(--line); border-radius: var(--radius-sm); padding: 7px 10px; font-size: 12px; font-family: inherit; color: var(--ink-900); }
+.cal-add-row input[type="date"] { border: 1.5px solid var(--line); border-radius: var(--radius-sm); padding: 7px 8px; font-size: 12px; font-family: inherit; color: var(--ink-900); }
+.cal-add-row select:focus, .cal-add-row input:focus { outline: none; border-color: var(--brand-2); }
+.cal-event button { flex-shrink: 0; background: var(--brand-soft); color: var(--brand-1); border: none; padding: 6px 12px; border-radius: 8px; font-size: 11.5px; font-weight: 700; cursor: pointer; font-family: inherit; }
+.cal-empty { color: var(--ink-300); font-size: 12.5px; text-align: center; padding: 18px 0; }
+
+.cc-card { border: 1px solid var(--line-soft); border-radius: var(--radius-sm); overflow: hidden; margin-bottom: 12px; }
+.cc-card:last-child { margin-bottom: 0; }
+.cc-remove { text-align: right; font-size: 10.5px; color: var(--danger); cursor: pointer; padding: 4px 8px 0; }
+.cc-row { display: flex; align-items: stretch; border-top: 1px solid var(--line-soft); }
+.cc-row:first-child { border-top: none; }
+.cc-row.shaded { background: #f8f8fc; }
+.cc-label { width: 60px; flex-shrink: 0; background: var(--ink-500); color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; text-align: center; padding: 6px 4px; }
+.cc-label.cc-cc { background: var(--c-violet); }
+.cc-label.cc-os { background: var(--c-teal); }
+.cc-label.cc-symptom { background: var(--c-orange); }
+.cc-label.cc-worse { background: var(--danger); }
+.cc-label.cc-better { background: var(--success); }
+.cc-input { flex: 1; border: none; background: transparent; font-size: 12.5px; padding: 8px 10px; resize: vertical; min-height: 34px; font-family: inherit; color: var(--ink-900); }
+.cc-input:focus { outline: none; background: #fbfbff; }
+
+.memo-textarea { width: 100%; border: 1.5px solid var(--line); border-radius: var(--radius-sm); padding: 10px; font-size: 12.5px; resize: vertical; min-height: 90px; font-family: inherit; color: var(--ink-900); }
+.memo-textarea:focus { outline: none; border-color: var(--brand-2); }
+.memo-textarea.big { min-height: 320px; }
+
+.cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; margin-bottom: 20px; }
+.cat-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-sm); }
+.cat-card .cat-hdr { background: linear-gradient(135deg, var(--brand-1), var(--brand-2)); color: #fff; font-size: 12.5px; font-weight: 700; padding: 9px 16px; }
+.cat-card:nth-child(4n+2) .cat-hdr { background: linear-gradient(135deg, var(--c-teal), #16a34a); }
+.cat-card:nth-child(4n+3) .cat-hdr { background: linear-gradient(135deg, var(--c-orange), var(--c-pink)); }
+.cat-card:nth-child(4n+4) .cat-hdr { background: linear-gradient(135deg, var(--c-blue), var(--c-violet)); }
+.cat-card .cat-body { padding: 12px 16px; }
+.qa-row { font-size: 13px; line-height: 1.6; padding: 6px 0; border-bottom: 1px dashed var(--line-soft); }
+.qa-row:last-child { border-bottom: none; }
+.qa-row .q { color: var(--ink-500); }
+.qa-row .a { color: var(--ink-900); font-weight: 600; }
+.qa-sub { font-size: 12px; color: var(--ink-500); padding: 2px 0 2px 12px; }
+.qa-sub b { color: var(--ink-700); font-weight: 600; }
+
+/* 문진 답변 수정 UI */
+.save-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.save-bar button { background: linear-gradient(135deg, var(--c-violet), var(--c-pink)); color: #fff; border: none; padding: 11px 22px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 700; cursor: pointer; box-shadow: var(--shadow-md); transition: transform .1s, box-shadow .15s; }
+.save-bar button:hover { box-shadow: var(--shadow-lg); transform: translateY(-1px); }
+.save-bar.top { padding: 12px 14px; background: var(--brand-soft); border-radius: var(--radius-md); }
+.save-status { font-size: 12px; color: var(--ink-500); }
+.save-status.ok { color: var(--success); font-weight: 600; }
+.save-status.err { color: var(--danger); font-weight: 600; }
+.edit-opts { display: flex; flex-wrap: wrap; gap: 3px 14px; margin: 3px 0 2px; }
+.edit-opt, .edit-chk { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; color: var(--ink-900); cursor: pointer; }
+.edit-opt input, .edit-chk input { width: 15px; height: 15px; accent-color: var(--brand-1); cursor: pointer; margin: 0; }
+.qa-sub-block { margin: 2px 0 8px 14px; padding-left: 10px; border-left: 2px solid var(--line-soft); }
+.qa-sub-title { font-size: 11.5px; color: var(--brand-2); font-weight: 600; margin: 4px 0 2px; }
+
+.raw-toggle { font-size: 12px; color: var(--ink-300); cursor: pointer; margin-bottom: 8px; display: inline-block; }
+.raw-box { display: none; background: var(--line-soft); border-radius: var(--radius-sm); padding: 12px; font-family: ui-monospace, Consolas, monospace; font-size: 11.5px; color: var(--ink-500); white-space: pre-wrap; word-break: break-all; margin-bottom: 20px; }
+
+.status-line { font-size: 12px; color: var(--ink-300); padding: 0 22px; }
+
+/* 모바일에서 목록 <-> 상세를 전환할 때 상단에 뜨는 "목록으로" 바 (좁은 화면에서만 노출) */
+#m-tabbar { display: none; }
+#m-back { width: 100%; background: var(--brand-soft); color: var(--brand-1); border: none; padding: 11px 14px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 700; cursor: pointer; text-align: left; font-family: inherit; }
+
+@media (max-width: 1000px) {
+  .two-col { flex-direction: column; }
+  .col-side { width: 100%; }
+  .hss-two { flex-direction: column; gap: 4px; }
+  .anjin-grid { grid-template-columns: 1fr; }
+}
+
+/* ===== 모바일 레이아웃: 목록과 상세를 화면 전체로 번갈아 표시 ===== */
+@media (max-width: 820px) {
+  .topbar { height: auto; min-height: 52px; padding: 8px 12px; gap: 8px; flex-wrap: wrap; }
+  .topbar .brand { font-size: 14px; white-space: nowrap; }
+  .topbar .brand .brand-logo { height: 18px; }
+  .topbar .right { gap: 8px; font-size: 11px; flex: 1; justify-content: flex-end; min-width: 0; }
+  .topbar #last-updated { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .topbar button { padding: 7px 12px; font-size: 12px; white-space: nowrap; flex-shrink: 0; }
+
+  .layout { flex-direction: column; height: auto; }
+  .sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--line); }
+  .p-list { overflow-y: visible; }
+  .detail { padding: 16px 13px; overflow-y: visible; }
+
+  #m-tabbar { position: sticky; top: 0; z-index: 30; background: var(--surface); border-bottom: 1px solid var(--line); padding: 8px 12px; box-shadow: var(--shadow-sm); }
+  body.m-detail #m-tabbar { display: block; }
+  body.m-detail .sidebar { display: none; }
+  body:not(.m-detail) .detail { display: none; }
+
+  .cat-grid { grid-template-columns: 1fr; }
+  .patient-card { padding: 16px; gap: 12px 20px; }
+  .patient-card .name { font-size: 18px; }
+  .patient-card .copy-btn { margin-left: 0; }
+  .detail { font-size: 14px; }
+
+  .cal-card { padding: 16px; max-height: 94vh; }
+  .cal-hdr h2 { font-size: 14.5px; }
+  .cal-grid { gap: 4px; }
+  .cal-cell { min-height: 44px; padding: 4px; font-size: 9px; }
+  .cal-daynum { font-size: 10.5px; }
+  .cal-event { flex-direction: column; align-items: flex-start; }
+  .cal-event button { width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<div id="dash">
+  <div class="topbar">
+    <div class="brand"><img class="brand-logo" src="assets/bbae-logo.png" alt="빼빼한의원"> <span>문진 관리</span></div>
+    <div class="right">
+      <span id="last-updated"></span>
+      <span class="cal-btn-wrap">
+        <button onclick="openCalendar()">📅 처방·전화 달력</button>
+        <span class="cal-badge-dot" id="cal-badge-dot" style="display:none;">0</span>
+      </span>
+      <button onclick="refreshAll()">새로고침</button>
+      <button onclick="resetAdminKey()">비밀번호 재입력</button>
+    </div>
+  </div>
+  <div id="m-tabbar"><button id="m-back" onclick="exitMobileDetail()">← 환자 목록으로</button></div>
+  <div class="layout">
+    <div class="sidebar">
+      <div class="sidebar-hdr">
+        <div class="form-tabs">
+          <div class="form-tab herbal active" id="tab-herbal" onclick="switchForm('herbal')">🌿 한약문진</div>
+          <div class="form-tab diet" id="tab-diet" onclick="switchForm('diet')">🥗 다이어트문진</div>
+        </div>
+        <input type="text" id="search" placeholder="이름 또는 전화번호 검색" oninput="renderList()">
+      </div>
+      <div class="p-list" id="p-list"></div>
+    </div>
+    <div class="detail" id="detail">
+      <div class="detail-empty">왼쪽 목록에서 환자를 선택해주세요.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 처방·전화 예정 달력: 한약/다이어트 환자 전체를 통틀어 언제 처방했고 언제 전화할지 모아서 보여줍니다. -->
+<div class="cal-overlay" id="calendar-modal">
+  <div class="cal-card">
+    <div class="cal-hdr">
+      <h2 id="cal-title"></h2>
+      <div class="cal-nav">
+        <button onclick="calPrevMonth()">‹ 이전달</button>
+        <button onclick="calToday()">오늘</button>
+        <button onclick="calNextMonth()">다음달 ›</button>
+        <button class="cal-close" onclick="closeCalendar()">&#10005;</button>
+      </div>
+    </div>
+    <div class="cal-sub">파란 배지 = 처방일 · 주황 배지 = 전화 예정일(복용 10일쯤 후, 택배 배송일 감안 추정치). 날짜를 클릭하면 아래에 환자 목록이 보입니다.</div>
+    <div class="cal-grid" id="cal-grid"></div>
+    <div class="cal-detail">
+      <h3 id="cal-detail-date"></h3>
+      <div id="cal-detail-body"></div>
+    </div>
+  </div>
+</div>
+
+<script src="growth-data.js"></script>
+<script src="questions.js"></script>
+<script src="questions-diet.js"></script>
+<script>
+// docs/index.html 의 GAS_URL 과 동일한 주소를 사용합니다.
+const GAS_URL = "REPLACE_WITH_GOOGLE_APPS_SCRIPT_URL";
+
+// 관리자 비밀번호는 코드에 적지 않습니다(이 저장소는 공개라 누구나 코드를 볼 수 있음).
+// 처음 열 때 한 번 입력받아 이 기기(브라우저)에만 기억해두고, 서버(Apps Script)는 스크립트 속성의
+// ADMIN_KEY와 비교합니다. 비밀번호가 틀리면 목록을 불러오지 못하니 상단 "비밀번호 재입력"을 눌러주세요.
+const ADMIN_KEY_STORAGE = 'bbae_admin_key';
+function loadAdminKey() {
+  let k = '';
+  try { k = localStorage.getItem(ADMIN_KEY_STORAGE) || ''; } catch (e) { k = ''; }
+  if (!k) {
+    k = (prompt('관리자 비밀번호를 입력해주세요.') || '').trim();
+    if (k) { try { localStorage.setItem(ADMIN_KEY_STORAGE, k); } catch (e) { /* 저장 실패 시 매번 입력 */ } }
+  }
+  return k;
+}
+function resetAdminKey() {
+  try { localStorage.removeItem(ADMIN_KEY_STORAGE); } catch (e) { /* 무시 */ }
+  location.reload();
+}
+const adminKey = loadAdminKey();
+let records = [];
+let selectedIdx = null;
+
+// 한약문진 / 다이어트문진 탭 전환용. 두 탭의 목록·선택 상태는 서로 독립적으로 유지합니다.
+let activeForm = 'herbal'; // 'herbal' | 'diet'
+let dietRecords = [];
+let selectedDietIdx = null;
+let dietNotes = { memo: '' };
+let editingDietRowNum = null;
+// 다이어트 문진 답변 수정용 (questions-diet.js 의 DIET_Q/visibleDietQ/buildDietSummary가 참조).
+// 한약 문진의 answers와 이름이 겹치지 않도록 별도 변수로 둡니다.
+let dietAnswers = {};
+let hasEditableDietAnswers = false;
+
+// 문진 답변 수정용 (questions.js 의 Q/visibleQ/buildSummary 가 참조하는 전역 변수).
+// 환자를 새로 선택했을 때만 r.raw로 채우고, 그 이후 같은 환자를 다시 그릴 때는
+// (원장님이 클릭해서 고친 내용이 사라지지 않도록) 이미 채워진 값을 그대로 씁니다.
+let answers = {};
+let selectedGender = null;
+// 만 15세 이하 소아 여부 (growth-data.js의 isChildAge()로 계산). 소아면 questions.js가 문진 답변
+// 수정 UI에서도 Q 대신 QC(소아 전용 문항)를 쓰도록 하기 위해 사용합니다.
+let isChildPatient = false;
+// 소아 연령대(영유아/아동/청소년, growth-data.js의 childAgeTier()) - QC 내 연령대별 문항 노출에 사용.
+let childTier = null;
+let editingRowNum = null;
+// 현재 열린 환자가 실제 문진 답변 수정 UI(라디오/체크박스)를 보여주고 있는지 여부.
+// true일 때만 통합 저장 버튼이 raw/summary도 함께 저장합니다.
+let hasEditableAnswers = false;
+
+// 환자가 문진에서 적어낸 키/몸무게(다이어트 탭은 감량목표도)를 원장님이 직접 고칠 수 있게 하는 값.
+// (일부러 체중을 속여 적는 환자가 있어, 진료 중 실측치로 바로 잡을 수 있어야 함)
+// editingRowNum(다이어트는 editingDietRowNum)이 바뀔 때만 원본 값으로 초기화합니다.
+let editedVitals = { height: '', weight: '', goal: '' };
+
+// 주증상(CC)/진료메모/처방메모 - 원장님이 진료 중 직접 채워 넣는 항목.
+// editingRowNum이 바뀔 때(환자를 새로 열 때)만 초기화합니다.
+let doctorNotes = { cc: [], memo: '', prescription: '', tendency: null, myunsaek: null, bulgeun: null, gita: [], anjin: {}, shipments: [] };
+
+// AI 처방 추천 결과(마지막으로 받은 것) - "근거 보기"/"처방메모에 담기" 버튼에서 참조합니다.
+let lastAiResult = null;
+
+// 처방·전화 달력 모달의 현재 표시 연/월(0=1월)과 선택된 날짜('YYYY-MM-DD').
+let calYear = null;
+let calMonth = null;
+let calSelectedDate = null;
+// 달력 안에서 인라인으로 수정 중인 처방 기록의 id (없으면 null).
+let calEditingShipId = null;
+
+loadData();
+loadDietData();
+
+// ===== 날짜 계산 유틸: 처방일 → 택배 도착 예상일 → 전화 예정일(복용 10일쯤 후) =====
+// 생년월일과 같은 이유로, Date 객체를 시각(시/분/초, 시간대)까지 다루지 않고
+// "YYYY-MM-DD" 문자열과 로컬 자정 기준 Date만 오가며 계산해 하루가 밀리는 문제를 피합니다.
+function parseYMD(s) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(s || ''));
+  if (!m) return null;
+  return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+}
+function toYMD(d) {
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate() + n); return r; }
+function isSunday(d) { return d.getDay() === 0; }
+// 택배는 보통 일요일에 배송이 없어, 일요일에 걸리면 하루 더 밀어 다음날(월요일)로 봅니다.
+function skipSunday(d) { return isSunday(d) ? addDays(d, 1) : d; }
+function weekdayLabel(d) { return ['일', '월', '화', '수', '목', '금', '토'][d.getDay()]; }
+function fmtMD(d) { return d ? (d.getMonth() + 1) + '/' + d.getDate() + '(' + weekdayLabel(d) + ')' : '-'; }
+function fmtRange(min, max) {
+  if (!min) return '-';
+  return toYMD(min) === toYMD(max) ? fmtMD(min) : fmtMD(min) + '~' + fmtMD(max);
+}
+// 오늘 처방하면 보통 내일이나 모레쯤 도착 - 주말(일요일)이 끼면 하루 정도 더 늘어난다는
+// 원장님 설명을 그대로 규칙화: 처방일+1일을 최소 도착일, +1일을 더한 값을 최대 도착일로 보되
+// 각각 일요일에 걸리면 월요일로 밀어줍니다.
+function estimateArrival(shipDateStr) {
+  const ship = parseYMD(shipDateStr);
+  if (!ship) return null;
+  const min = skipSunday(addDays(ship, 1));
+  const max = skipSunday(addDays(min, 1));
+  return { min: min, max: max };
+}
+// 전화 예정일 = 도착(복용 시작) 예상일 중 더 늦은 쪽 + 10일(도착이 늦어도 안전하게 잡음).
+// 병원이 쉬는 일요일에 걸리면 월요일로 밀어줍니다. 날짜를 범위가 아니라 하나만 돌려줍니다 -
+// 달력에 "전화 2건"처럼 같은 통화가 이틀에 걸쳐 중복 표시되던 문제를 없애기 위해서입니다.
+// 이 날짜가 지나도 통화가 성공 처리되지 않으면, 달력에서는(collectShipmentEvents_) 이 날짜
+// 대신 "오늘" 날짜에 계속 나타나도록 해서 해결될 때까지 매일 다시 눈에 띄게 합니다.
+function estimateCallDate(shipDateStr) {
+  const arrival = estimateArrival(shipDateStr);
+  if (!arrival) return null;
+  return skipSunday(addDays(arrival.max, 10));
+}
+
+// 구글시트가 "01090261075" 같은 전화번호를 숫자로 자동 인식해서 맨 앞 0이 사라지는 경우가 있어
+// (이때 r.phone은 문자열이 아니라 숫자가 되어 .includes() 검색도 깨집니다), 불러온 직후 복구합니다.
+function formatPhone(v) {
+  if (v === undefined || v === null || v === '') return '';
+  let s = String(v).trim();
+  if (/^[1-9][0-9]{8,9}$/.test(s)) s = '0' + s;
+  return s;
+}
+function normalizeRecord(r) { return Object.assign({}, r, { phone: formatPhone(r.phone) }); }
+
+// 목록/상세에서 성별 태그 옆에 "소아" 표시를 붙일지 판단 (growth-data.js의 isChildAge, 만 15세 이하).
+function childTagHtml(r) {
+  return (r.birthDate && isChildAge(r.birthDate)) ? '<span class="gender-tag child">소아</span>' : '';
+}
+
+// 목록에서 이름 옆에 "(만나이세)"를 붙이기 위한 라벨 (growth-data.js의 ageInYears 사용).
+function ageLabel(r) {
+  if (!r.birthDate) return '';
+  const y = ageInYears(r.birthDate);
+  return (y === null || y === undefined) ? '' : `(${y}세)`;
+}
+
+function genderClass(g) {
+  if (!g) return '';
+  if (g.indexOf('남') === 0) return 'male';
+  if (g.indexOf('여') === 0) return 'female';
+  return '';
+}
+
+function refreshAll() {
+  loadData();
+  loadDietData();
+}
+
+// 좁은 화면(모바일)에서는 목록과 상세를 한 화면씩 번갈아 보여줍니다.
+// body.m-detail 이 붙어 있으면 상세 화면, 없으면 목록 화면입니다. (넓은 화면에서는 CSS가 무시)
+function isMobileView() { return window.matchMedia('(max-width: 820px)').matches; }
+
+function enterMobileDetail() {
+  if (isMobileView() && !document.body.classList.contains('m-detail')) {
+    document.body.classList.add('m-detail');
+    window.scrollTo(0, 0);
+    // 상세를 열 때 방문기록을 하나 추가해 둡니다. 이렇게 하면 휴대폰의 뒤로가기
+    // 버튼을 눌렀을 때 페이지(브라우저)가 닫히지 않고 환자 목록으로 돌아옵니다.
+    history.pushState({ mDetail: true }, '');
+  }
+}
+
+// fromPop=true 는 뒤로가기(popstate)로 호출된 경우. 이때는 이미 방문기록이 하나
+// 소비된 상태이므로 history.back() 을 또 부르지 않습니다.
+function exitMobileDetail(fromPop) {
+  if (!document.body.classList.contains('m-detail')) return;
+  document.body.classList.remove('m-detail');
+  if (!fromPop && history.state && history.state.mDetail) history.back();
+}
+
+// 휴대폰/브라우저의 뒤로가기 버튼 처리: 상세 화면이면 목록으로만 돌아가고 페이지는 벗어나지 않습니다.
+window.addEventListener('popstate', function () {
+  if (document.body.classList.contains('m-detail')) exitMobileDetail(true);
+});
+
+// 한약문진/다이어트문진 탭 전환. 두 탭의 목록/선택 상태는 서로 건드리지 않고 그대로 유지합니다.
+function switchForm(form) {
+  activeForm = form;
+  document.getElementById('tab-herbal').classList.toggle('active', form === 'herbal');
+  document.getElementById('tab-diet').classList.toggle('active', form === 'diet');
+  document.getElementById('search').value = '';
+  renderList();
+  document.getElementById('detail').innerHTML = '<div class="detail-empty">왼쪽 목록에서 환자를 선택해주세요.</div>';
+  exitMobileDetail();
+}
+
+// 구글 Apps Script 서버가 가끔 오래 걸리다가 "페이지를 찾을 수 없음"(404)을 돌려주는 일이 있어,
+// 실패하면 잠시 쉬었다가 자동으로 다시 요청합니다. 매번 주소 끝에 시각을 붙여 새로 실행되게 합니다.
+async function fetchJsonWithRetry(url, onRetry) {
+  const MAX_TRY = 4;
+  let lastErr;
+  for (let i = 1; i <= MAX_TRY; i++) {
+    try {
+      const res = await fetch(url + '&_=' + Date.now());
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return await res.json();
+    } catch (e) {
+      lastErr = e;
+      if (i < MAX_TRY) {
+        if (onRetry) onRetry(i + 1, MAX_TRY);
+        await new Promise(r => setTimeout(r, 2000));
+      }
+    }
+  }
+  throw lastErr;
+}
+
+async function loadDietData() {
+  try {
+    const data = await fetchJsonWithRetry(GAS_URL + '?key=' + encodeURIComponent(adminKey) + '&type=diet');
+    if (Array.isArray(data)) {
+      dietRecords = data.map(normalizeRecord);
+      if (activeForm === 'diet') {
+        renderList();
+        if (selectedDietIdx !== null) renderDietDetail(selectedDietIdx);
+      }
+      updateTimestamp();
+      updateCalendarBadge();
+    }
+  } catch (e) { /* 조용히 실패 - 다음 새로고침에서 재시도 */ }
+}
+
+async function loadData() {
+  const statusEl = document.getElementById('last-updated');
+  if (statusEl && records.length === 0) statusEl.textContent = '불러오는 중...';
+  try {
+    const data = await fetchJsonWithRetry(GAS_URL + '?key=' + encodeURIComponent(adminKey), (n, max) => {
+      if (statusEl && records.length === 0) statusEl.textContent = '서버 응답이 늦어 다시 시도 중... (' + n + '/' + max + ')';
+    });
+    if (Array.isArray(data)) {
+      records = data.map(normalizeRecord);
+      if (activeForm === 'herbal') {
+        renderList();
+        if (selectedIdx !== null) renderDetail(selectedIdx);
+      }
+      updateTimestamp();
+      updateCalendarBadge();
+    } else if (statusEl) {
+      statusEl.textContent = '서버 응답에 문제가 있습니다.';
+    }
+  } catch (e) {
+    if (statusEl) statusEl.textContent = '서버에 연결하지 못했습니다. 새로고침을 눌러주세요.';
+  }
+}
+
+function updateTimestamp() {
+  const now = new Date();
+  document.getElementById('last-updated').textContent =
+    '마지막 새로고침 ' + now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+}
+
+function renderList() {
+  const kw = (document.getElementById('search').value || '').trim();
+  const list = document.getElementById('p-list');
+  const isDiet = activeForm === 'diet';
+  const src = isDiet ? dietRecords : records;
+  const curIdx = isDiet ? selectedDietIdx : selectedIdx;
+  const openFn = isDiet ? 'renderDietDetail' : 'renderDetail';
+  const filtered = src
+    .map((r, i) => ({ r, i }))
+    .filter(({ r }) => !kw || (r.name || '').includes(kw) || (r.phone || '').includes(kw));
+
+  if (filtered.length === 0) {
+    list.innerHTML = `<div class="empty-list">아직 접수된 ${isDiet ? '다이어트' : '한약'} 문진이 없습니다.</div>`;
+    return;
+  }
+
+  // src는 최신 제출이 맨 앞(index 0)에 오도록 정렬되어 있으므로,
+  // 가장 오래된 접수가 1번이 되도록 뒤에서부터 번호를 매깁니다 (목록에 보이는 순서 자체는 최신순 그대로 유지).
+  list.innerHTML = filtered.map(({ r, i }) => {
+    const dt = r.submittedAt ? new Date(r.submittedAt) : null;
+    const dtText = dt ? dt.toLocaleString('ko-KR', { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+    const genderTag = r.gender ? `<span class="gender-tag ${genderClass(r.gender)}">${r.gender}</span>` : '';
+    const visitTag = isDiet ? visitTagHtml(dietVisitTypeOf(r)) : '';
+    const num = src.length - i;
+    return `<div class="p-item${i === curIdx ? ' active' : ''}" onclick="${openFn}(${i})">
+      <span class="p-num">${num}</span>
+      <div class="p-body">
+        <div class="nm">${esc(r.name || '(이름없음)')}${ageLabel(r)} ${genderTag}${childTagHtml(r)}${visitTag}</div>
+        <div class="inf">${esc(r.phone || '')}</div>
+        <div class="tm">${dtText}</div>
+      </div>
+      <button class="p-del" title="삭제" onclick="event.stopPropagation(); deleteRecord(${r.rowNum}, '${escJsAttr(r.name || '(이름없음)')}')">&#10005;</button>
+    </div>`;
+  }).join('');
+}
+
+// 관리자페이지에서 잘못 접수된 문진(테스트 접수, 중복 등)을 완전히 삭제합니다.
+// 구글시트에서 실제로 행이 지워지는 되돌릴 수 없는 작업이라, 클릭할 때마다 반드시 확인을 받습니다.
+function deleteRecord(rowNum, name) {
+  if (!confirm(`${name}님의 문진 기록을 정말 삭제하시겠습니까?\n\n구글시트에서 완전히 삭제되며, 되돌릴 수 없습니다.`)) return;
+
+  const isDiet = activeForm === 'diet';
+  const payload = { action: 'delete', key: adminKey, rowNum: rowNum };
+  if (isDiet) payload.formType = 'diet';
+  fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) })
+    .then(res => res.json())
+    .then(data => {
+      if (!data || data.status !== 'ok') {
+        alert((data && data.message) || '삭제에 실패했습니다.');
+        return;
+      }
+      // rowNum이 밀려서 다른 환자들의 행 번호도 바뀌므로, 서버에서 다시 불러와 목록을 맞춥니다.
+      if (isDiet) {
+        if (selectedDietIdx !== null && dietRecords[selectedDietIdx] && dietRecords[selectedDietIdx].rowNum === rowNum) {
+          selectedDietIdx = null;
+          document.getElementById('detail').innerHTML = '<div class="detail-empty">왼쪽 목록에서 환자를 선택해주세요.</div>';
+          exitMobileDetail();
+        }
+        loadDietData();
+        return;
+      }
+      if (selectedIdx !== null && records[selectedIdx] && records[selectedIdx].rowNum === rowNum) {
+        selectedIdx = null;
+        document.getElementById('detail').innerHTML = '<div class="detail-empty">왼쪽 목록에서 환자를 선택해주세요.</div>';
+        exitMobileDetail();
+      }
+      loadData();
+    })
+    .catch(() => {
+      alert('서버에 연결하지 못했습니다. 네트워크를 확인해주세요.');
+    });
+}
+
+function esc(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// ===== BMI 자동 계산 및 체형 그림 =====
+function calcBMI(h, w) {
+  h = parseFloat(h); w = parseFloat(w);
+  if (!h || !w) return null;
+  return w / ((h / 100) * (h / 100));
+}
+
+function getBMICategory(bmi) {
+  if (!bmi) return -1;
+  if (bmi < 18.5) return 0;
+  if (bmi < 20) return 1;
+  if (bmi < 23) return 2;
+  if (bmi < 25) return 3;
+  if (bmi < 27.5) return 4;
+  if (bmi < 30) return 5;
+  return 6;
+}
+
+// 어깨~허리~엉덩이를 잇는 몸통 윤곽선(둥근 사다리꼴) 경로를 만듭니다.
+// 팔다리는 몸통과 분리해서 따로 그리기 때문에, 몸통은 엉덩이 아래를 둥글게 마감합니다.
+function torsoPath(cx, shoulderW, waistW, hipW, shoulderY, waistY, hipY, hipBottomY) {
+  return `
+    M ${cx - shoulderW} ${shoulderY}
+    Q ${cx} ${shoulderY - 6} ${cx + shoulderW} ${shoulderY}
+    C ${cx + shoulderW + 2} ${shoulderY + 9}, ${cx + waistW + 1} ${waistY - 9}, ${cx + waistW} ${waistY}
+    C ${cx + waistW - 1} ${waistY + 5}, ${cx + hipW} ${hipY - 5}, ${cx + hipW} ${hipY}
+    Q ${cx + hipW * 0.6} ${hipBottomY} ${cx} ${hipBottomY}
+    Q ${cx - hipW * 0.6} ${hipBottomY} ${cx - hipW} ${hipY}
+    C ${cx - hipW} ${hipY - 5}, ${cx - waistW + 1} ${waistY + 5}, ${cx - waistW} ${waistY}
+    C ${cx - waistW - 1} ${waistY - 9}, ${cx - shoulderW - 2} ${shoulderY + 9}, ${cx - shoulderW} ${shoulderY}
+    Z`;
+}
+
+// 머리/목/몸통/팔다리를 분리해서 그리는 사람 실루엣 (첨부 도안 스타일: 팔은 몸통에서
+// 살짝 떨어져 손이 보이고, 다리도 사이가 벌어져 각각 발이 보입니다).
+// widthScale(0~1)이 커질수록 어깨/허리/엉덩이/팔다리가 굵어져 비만도를 표현합니다.
+function personSVG(o) {
+  const cx = o.cx;
+  const shoulderW = o.shoulderBase + o.ws * o.shoulderGrow;
+  const waistW = o.waistBase + o.ws * o.waistGrow;
+  const hipW = waistW * o.hipRatio;
+  const armW = o.armBase + o.ws * o.armGrow;
+  const legW = o.legBase + o.ws * o.legGrow;
+
+  const torso = torsoPath(cx, shoulderW, waistW, hipW, o.shoulderY, o.waistY, o.hipY, o.hipBottomY);
+
+  const armLx1 = cx - shoulderW + 2, armLy1 = o.shoulderY + 2;
+  const armLx2 = cx - shoulderW - 3, armLy2 = o.waistY + o.armDrop;
+  const armRx1 = cx + shoulderW - 2, armRy1 = o.shoulderY + 2;
+  const armRx2 = cx + shoulderW + 3, armRy2 = o.waistY + o.armDrop;
+
+  const legLx1 = cx - o.legGap / 2 - legW * 0.3, legLy1 = o.hipY + 1;
+  const legLx2 = legLx1 - 1.4, legLy2 = o.legBottomY;
+  const legRx1 = cx + o.legGap / 2 + legW * 0.3, legRy1 = o.hipY + 1;
+  const legRx2 = legRx1 + 1.4, legRy2 = o.legBottomY;
+
+  return `<svg viewBox="0 0 60 ${o.viewH}" width="${o.dispW}" height="${o.dispH}">
+    <line x1="${legLx1}" y1="${legLy1}" x2="${legLx2}" y2="${legLy2}" stroke="${o.strokeC}" stroke-width="${legW + 1.6}" stroke-linecap="round"/>
+    <line x1="${legRx1}" y1="${legRy1}" x2="${legRx2}" y2="${legRy2}" stroke="${o.strokeC}" stroke-width="${legW + 1.6}" stroke-linecap="round"/>
+    <line x1="${legLx1}" y1="${legLy1}" x2="${legLx2}" y2="${legLy2}" stroke="${o.fillC}" stroke-width="${legW}" stroke-linecap="round"/>
+    <line x1="${legRx1}" y1="${legRy1}" x2="${legRx2}" y2="${legRy2}" stroke="${o.fillC}" stroke-width="${legW}" stroke-linecap="round"/>
+    <ellipse cx="${legLx2}" cy="${o.footY}" rx="${legW * 0.6}" ry="2.3" fill="${o.strokeC}"/>
+    <ellipse cx="${legRx2}" cy="${o.footY}" rx="${legW * 0.6}" ry="2.3" fill="${o.strokeC}"/>
+    <line x1="${armLx1}" y1="${armLy1}" x2="${armLx2}" y2="${armLy2}" stroke="${o.strokeC}" stroke-width="${armW + 1.6}" stroke-linecap="round"/>
+    <line x1="${armRx1}" y1="${armRy1}" x2="${armRx2}" y2="${armRy2}" stroke="${o.strokeC}" stroke-width="${armW + 1.6}" stroke-linecap="round"/>
+    <line x1="${armLx1}" y1="${armLy1}" x2="${armLx2}" y2="${armLy2}" stroke="${o.fillC}" stroke-width="${armW}" stroke-linecap="round"/>
+    <line x1="${armRx1}" y1="${armRy1}" x2="${armRx2}" y2="${armRy2}" stroke="${o.fillC}" stroke-width="${armW}" stroke-linecap="round"/>
+    <circle cx="${armLx2}" cy="${armLy2}" r="${armW * 0.6}" fill="${o.strokeC}"/>
+    <circle cx="${armRx2}" cy="${armRy2}" r="${armW * 0.6}" fill="${o.strokeC}"/>
+    <path d="${torso}" fill="${o.fillC}" stroke="${o.strokeC}" stroke-width="1.2" stroke-linejoin="round"/>
+    <rect x="${cx - 3.2}" y="${o.headCy + o.headR - 2}" width="6.4" height="6.5" rx="2.2" fill="${o.fillC}" stroke="${o.strokeC}" stroke-width="1"/>
+    <circle cx="${cx}" cy="${o.headCy}" r="${o.headR}" fill="${o.fillC}" stroke="${o.strokeC}" stroke-width="1.2"/>
+  </svg>`;
+}
+
+// 성인 남성: 어깨가 넓고 허리 굴곡이 적은 각진 체형.
+function bodyMale(ws) {
+  return personSVG({
+    cx: 30, ws,
+    shoulderY: 20, waistY: 40, hipY: 48, hipBottomY: 54, legBottomY: 82, footY: 84.5,
+    viewH: 88, dispW: 44, dispH: 64,
+    shoulderBase: 15, shoulderGrow: 5,
+    waistBase: 12, waistGrow: 12,
+    hipRatio: 0.96,
+    armBase: 4.5, armGrow: 2.8, armDrop: 8,
+    legBase: 5.5, legGrow: 3.6, legGap: 3.5,
+    headR: 7.6, headCy: 9.5,
+    fillC: '#bcd3f5', strokeC: '#5f8ad6'
+  });
+}
+
+// 성인 여성: 어깨가 좁고 허리가 잘록했다가 엉덩이에서 다시 퍼지는 체형.
+function bodyFemale(ws) {
+  return personSVG({
+    cx: 30, ws,
+    shoulderY: 20, waistY: 39, hipY: 47, hipBottomY: 53, legBottomY: 82, footY: 84.5,
+    viewH: 88, dispW: 44, dispH: 64,
+    shoulderBase: 11, shoulderGrow: 4,
+    waistBase: 7.5, waistGrow: 10,
+    hipRatio: 1.25,
+    armBase: 3.8, armGrow: 2.2, armDrop: 8,
+    legBase: 4.8, legGrow: 3, legGap: 3.5,
+    headR: 7.2, headCy: 9.3,
+    fillC: '#f6c9dd', strokeC: '#c23f86'
+  });
+}
+
+// 소아: 머리 비중이 크고 몸통/팔다리가 짧은 아동 체형 (성별 구분 없이 공용으로 사용).
+function bodyChild(ws) {
+  return personSVG({
+    cx: 30, ws,
+    shoulderY: 25, waistY: 35, hipY: 40, hipBottomY: 45, legBottomY: 72, footY: 74,
+    viewH: 78, dispW: 38, dispH: 57,
+    shoulderBase: 9.5, shoulderGrow: 3.2,
+    waistBase: 9, waistGrow: 6.5,
+    hipRatio: 1.05,
+    armBase: 4, armGrow: 2.2, armDrop: 7,
+    legBase: 5, legGrow: 3, legGap: 3,
+    headR: 10, headCy: 11.5,
+    fillC: '#bdeee6', strokeC: '#0d9488'
+  });
+}
+
+// 소아면 소아 도안, 아니면 성별(genderClass)에 따라 남성/여성 도안을 고릅니다.
+// 성별 정보가 없으면 남성 도안을 기본으로 씁니다.
+function bodySVG(widthScale, gender, isChild) {
+  if (isChild) return bodyChild(widthScale);
+  return genderClass(gender) === 'female' ? bodyFemale(widthScale) : bodyMale(widthScale);
+}
+
+function renderBMI(bmi, gender, isChild) {
+  const cats = [
+    { label: '매우수척', range: 'BMI 17', w: 0.15 },
+    { label: '수척', range: 'BMI 19', w: 0.3 },
+    { label: '약간수척', range: 'BMI 22', w: 0.45 },
+    { label: '중등도', range: 'BMI 24', w: 0.6 },
+    { label: '약간비만', range: 'BMI 26', w: 0.75 },
+    { label: '비만', range: 'BMI 29', w: 0.9 },
+    { label: '매우비만', range: 'BMI 33~', w: 1.0 }
+  ];
+  const active = getBMICategory(bmi);
+  return cats.map((c, i) => {
+    const act = i === active ? ' active' : '';
+    return `<div class="bmi-item${act}">
+      <div class="bmi-circle${act ? ' bmi-circle-active' : ''}">${bodySVG(c.w, gender, isChild)}</div>
+      <div class="bmi-label">${c.label}</div>
+      <div class="bmi-val">${c.range}</div>
+    </div>`;
+  }).join('');
+}
+
+// 키/몸무게 입력칸이 바뀔 때마다 호출 - BMI만 다시 그리고(#bmi-body),
+// 값 자체는 저장 버튼을 눌러야 구글시트에 반영됩니다.
+function updateVital(field, val) {
+  editedVitals[field] = val;
+  const el = document.getElementById('bmi-body');
+  if (el) el.innerHTML = renderBMIBody();
+  const gt = document.getElementById('goal-target');
+  if (gt) gt.textContent = goalTargetText();
+}
+
+// 다이어트 탭 환자카드에 "감량목표 -> 목표 체중" 을 계산해 보여줍니다.
+// goal(감량목표)은 목표 체중이 아니라 '빼고 싶은 무게'이므로 목표 체중 = 몸무게 - goal.
+function goalTargetText() {
+  const w = parseFloat(editedVitals.weight);
+  const g = parseFloat(editedVitals.goal);
+  if (w > 0 && g > 0 && g < w) {
+    const t = (w - g).toFixed(1).replace(/\.0$/, '');
+    return ` → 목표 체중 약 ${t}kg`;
+  }
+  return '';
+}
+
+function renderBMIBody() {
+  const bmi = calcBMI(editedVitals.height, editedVitals.weight);
+  return `<div class="bmi-bar">${renderBMI(bmi, selectedGender, isChildPatient)}</div>` +
+    (bmi ? `<div class="bmi-note">BMI ${bmi.toFixed(1)}</div>` : `<div class="bmi-note">키/몸무게 정보가 없어 계산할 수 없습니다.</div>`);
+}
+
+// ===== 소아 성장 평가 (herbal.html에서 계산해 raw JSON(answers._growth)에 담아 보낸 값을 그대로 표시) =====
+// 자동 계산 결과이며 참고용 통계 추정치입니다 (growth-data.js 참고).
+function renderGrowthSection(g) {
+  let body = '';
+  if (g.ageYears !== null && g.ageYears !== undefined) body += `만 나이: <b>${g.ageYears}세</b> (${g.ageMonths}개월)<br>`;
+  if (g.heightPercentile !== undefined) body += `키 백분위수: <b>${g.heightPercentile}</b> — ${esc(g.heightDesc || '')}<br>`;
+  if (g.weightPercentile !== undefined) body += `몸무게 백분위수: <b>${g.weightPercentile}</b> — ${esc(g.weightDesc || '')}<br>`;
+  if (g.fatherHeight || g.motherHeight) {
+    body += `부모님 키: <b>${g.fatherHeight ? '아버지 ' + g.fatherHeight + 'cm' : ''}${g.fatherHeight && g.motherHeight ? ' / ' : ''}${g.motherHeight ? '어머니 ' + g.motherHeight + 'cm' : ''}</b><br>`;
+  }
+  if (g.predictedHeight) body += `예상 성인키(참고): <b>${g.predictedHeight.mid}cm</b> (${g.predictedHeight.low}~${g.predictedHeight.high}cm)<br>`;
+  return `<div class="bmi-section" style="border-left-color:var(--c-blue);">
+    <h3 style="color:var(--c-blue);">소아 성장 평가 (참고용)</h3>
+    <div style="font-size:12.5px;color:var(--ink-700);line-height:1.9;">${body}</div>
+    <div class="bmi-note">2017 소아청소년 성장도표 기준 통계적 추정치이며, 진단이 아닙니다.</div>
+  </div>`;
+}
+
+// ===== 형색성정: 성향/면색/붉은기/기타/안진 (모두 원장님이 진료 중 직접 판단해 표시, 자동 아님) =====
+// 주증상/메모와 함께 doctorNotes에 담겨 "저장" 버튼을 누르면 구글시트에 저장됩니다.
+const ANJIN_ITEMS = [
+  '상완 이두근 압통', '상완 삼두근 압통',
+  '심하 좁은부위 압통', '심하 넓은부위 압통',
+  '우 협하 압통', '좌 협하 압통',
+  '늑골들림', '복직근 경결 압통',
+  '우 제하 압통', '좌 제하 압통',
+  '복피 찰과 발적', '비복근 압통',
+  '경골상 함요 부종',
+  '장요근 압통', '능형근·기립근 압통'
+];
+
+function refreshHSS() {
+  const el = document.getElementById('hss-body');
+  if (el) el.innerHTML = renderHSSBody();
+}
+
+function setDotField(field, idx) {
+  doctorNotes[field] = doctorNotes[field] === idx ? null : idx;
+  refreshHSS();
+}
+function setTagField(field, val) {
+  doctorNotes[field] = doctorNotes[field] === val ? null : val;
+  refreshHSS();
+}
+function toggleGita(val) {
+  const i = doctorNotes.gita.indexOf(val);
+  if (i > -1) doctorNotes.gita.splice(i, 1);
+  else doctorNotes.gita.push(val);
+  refreshHSS();
+}
+function setAnjinStar(name, star) {
+  doctorNotes.anjin[name] = doctorNotes.anjin[name] === star ? 0 : star;
+  refreshHSS();
+}
+
+function renderDotScale(field, leftLabel, rightLabel) {
+  const cur = doctorNotes[field];
+  let h = `<span class="end-label">${leftLabel}</span>`;
+  for (let i = 0; i < 7; i++) {
+    const act = cur === i ? ' active' : '';
+    h += `<div class="dot-btn${act}" onclick="setDotField('${field}',${i})"></div>`;
+  }
+  h += `<span class="end-label right">${rightLabel}</span>`;
+  return h;
+}
+
+function renderHSSBody() {
+  let h = '<div class="hss-left">';
+  h += `<div class="hss-sub">· 성향</div><div class="dot-scale">${renderDotScale('tendency', '양적', '음적')}</div>`;
+  h += `<div class="hss-sub">· 면색</div><div class="dot-scale">${renderDotScale('myunsaek', '짙은편', '옅은편')}</div>`;
+
+  h += `<div class="hss-sub">· 붉은기</div><div class="tag-group">`;
+  ['약간그렇다', '그렇다', '매우그렇다'].forEach(t => {
+    const act = doctorNotes.bulgeun === t ? ' active' : '';
+    h += `<div class="tag-btn${act}" onclick="setTagField('bulgeun','${t}')">${t}</div>`;
+  });
+  h += `</div>`;
+
+  h += `<div class="hss-sub">· 기타(선택)</div><div class="tag-group">`;
+  ['미간주름', '입술건조', '안구황색침착'].forEach(t => {
+    const act = doctorNotes.gita.includes(t) ? ' active' : '';
+    h += `<div class="tag-btn${act}" onclick="toggleGita('${t}')">${t}</div>`;
+  });
+  h += `</div></div>`; // hss-left
+
+  h += `<div class="hss-right"><div class="anjin-title">· 안진</div><div class="anjin-grid">`;
+  ANJIN_ITEMS.forEach(name => {
+    const stars = doctorNotes.anjin[name] || 0;
+    h += `<div class="anjin-item"><span class="aj-name">${esc(name)}</span><div class="star-group">`;
+    for (let s = 1; s <= 3; s++) {
+      const on = s <= stars ? ' on' : '';
+      h += `<span class="star-btn${on}" onclick="setAnjinStar('${escJsAttr(name)}',${s})">&#9733;</span>`;
+    }
+    h += `</div></div>`;
+  });
+  h += `</div></div>`; // hss-right
+  return h;
+}
+
+function renderHSS() {
+  return `<div class="hss-section">
+    <h3>형색성정</h3>
+    <div class="sub">자동 계산이 아니라, 원장님이 진료 중 직접 판단해 표시하는 항목입니다.</div>
+    <div class="hss-two" id="hss-body">${renderHSSBody()}</div>
+  </div>`;
+}
+
+// ===== 문진 답변 수정 (환자가 잘못 표현한 부분을 원장이 직접 고칠 수 있도록) =====
+// questions.js 의 Q / visibleQ() / buildSummary() 를 그대로 사용하고, 전역 answers/selectedGender 를
+// 현재 열어본 환자의 답변으로 채운 뒤 실제 라디오버튼/체크박스로 그려줍니다.
+
+// 옵션 문자열을 onclick="..." 안의 JS 문자열로 안전하게 넣기 위한 이스케이프 (index.html의 esc()와 동일)
+function escJsAttr(s) { return String(s).replace(/'/g, "\\'").replace(/"/g, '&quot;'); }
+
+function isEditSelected(qId, opt, type) {
+  if (type === 'single') return answers[qId] === opt;
+  return (answers[qId] || []).includes(opt);
+}
+
+// docs/index.html 의 pick()과 동일한 선택/토글 로직
+function editPick(qId, val, type) {
+  val = val.replace(/\\'/g, "'");
+  const isNA = val === '해당없음' || val === '해당 없음';
+  if (type === 'single') {
+    if (answers[qId] === val) delete answers[qId];
+    else answers[qId] = val;
+  } else {
+    if (!answers[qId]) answers[qId] = [];
+    const i = answers[qId].indexOf(val);
+    if (i > -1) {
+      answers[qId].splice(i, 1);
+    } else if (isNA) {
+      answers[qId] = [val];
+    } else {
+      answers[qId] = answers[qId].filter(v => v !== '해당없음' && v !== '해당 없음');
+      answers[qId].push(val);
+    }
+    if (answers[qId].length === 0) delete answers[qId];
+  }
+  renderDetail(selectedIdx);
+}
+
+function editToggleEmo(itemId) {
+  answers[itemId] = !answers[itemId];
+  if (!answers[itemId]) delete answers[itemId];
+  renderDetail(selectedIdx);
+}
+
+// 과거력/복용약물처럼 자유 텍스트로 답하는 문항(type:"text") 수정용. 키 입력마다 다시 그리면
+// 커서 위치가 튀므로, 다른 필드로 넘어갈 때(onchange)만 저장하고 다시 그립니다.
+function editPickText(qId, val) {
+  if (val && val.trim()) answers[qId] = val.trim();
+  else delete answers[qId];
+  renderDetail(selectedIdx);
+}
+
+// ===== 다이어트 문진 답변 수정 (한약 문진의 editPick/editPickText/renderQuestionRow와 같은 방식이지만,
+// DIET_Q에는 sub/emotion 타입이 없어 더 단순합니다. 전역 dietAnswers를 사용합니다.) =====
+function isDietEditSelected(qId, opt, type) {
+  if (type === 'single') return dietAnswers[qId] === opt;
+  return (dietAnswers[qId] || []).includes(opt);
+}
+
+function editDietPick(qId, val, type) {
+  val = val.replace(/\\'/g, "'");
+  if (type === 'single') {
+    if (dietAnswers[qId] === val) delete dietAnswers[qId];
+    else dietAnswers[qId] = val;
+  } else {
+    if (!dietAnswers[qId]) dietAnswers[qId] = [];
+    const i = dietAnswers[qId].indexOf(val);
+    if (i > -1) dietAnswers[qId].splice(i, 1);
+    else dietAnswers[qId].push(val);
+    if (dietAnswers[qId].length === 0) delete dietAnswers[qId];
+  }
+  renderDietDetail(selectedDietIdx);
+}
+
+function editDietPickText(qId, val) {
+  if (val && val.trim()) dietAnswers[qId] = val.trim();
+  else delete dietAnswers[qId];
+  renderDietDetail(selectedDietIdx);
+}
+
+function renderDietQuestionRow(q) {
+  if (q.type === 'text') {
+    const val = dietAnswers[q.id] || '';
+    return `<div class="qa-row"><span class="q">${esc(q.title)}</span></div><div class="edit-opts">` +
+      `<textarea style="width:100%;min-height:60px;padding:8px;border:1px solid #ddd;border-radius:6px;font-size:13.5px;box-sizing:border-box;" ` +
+      `onchange="editDietPickText('${q.id}', this.value)">${esc(val)}</textarea></div>`;
+  }
+  const inputType = q.type === 'multi' ? 'checkbox' : 'radio';
+  let h = `<div class="qa-row"><span class="q">${esc(q.title)}</span></div><div class="edit-opts">`;
+  q.opts.forEach(o => {
+    const checked = isDietEditSelected(q.id, o, q.type);
+    h += `<label class="edit-opt"><input type="${inputType}" name="edit_diet_${q.id}" ${checked ? 'checked' : ''} onclick="editDietPick('${q.id}','${escJsAttr(o)}','${q.type}')"> ${esc(o)}</label>`;
+  });
+  h += `</div>`;
+  return h;
+}
+
+function buildDietEditableCats() {
+  const cats = [];
+  let cur = null;
+  visibleDietQ(dietAnswers).forEach(q => {
+    if (!cur || cur.name !== q.cat) { cur = { name: q.cat, rows: [] }; cats.push(cur); }
+    cur.rows.push(renderDietQuestionRow(q));
+  });
+  return moveCatToFront(cats, '체크리스트');
+}
+
+function renderSubQuestionRow(sq) {
+  const inputType = sq.type === 'multi' ? 'checkbox' : 'radio';
+  let h = '';
+  if (sq.title) h += `<div class="qa-sub-title">${esc(sq.title)}</div>`;
+  h += `<div class="edit-opts">`;
+  sq.opts.forEach(o => {
+    const checked = isEditSelected(sq.id, o, sq.type);
+    h += `<label class="edit-opt"><input type="${inputType}" name="edit_${sq.id}" ${checked ? 'checked' : ''} onclick="editPick('${sq.id}','${escJsAttr(o)}','${sq.type}')"> ${esc(o)}</label>`;
+  });
+  h += `</div>`;
+  return h;
+}
+
+function renderQuestionRow(q) {
+  if (q.type === 'text') {
+    const val = answers[q.id] || '';
+    return `<div class="qa-row"><span class="q">${esc(q.title)}</span></div><div class="edit-opts">` +
+      `<textarea style="width:100%;min-height:60px;padding:8px;border:1px solid #ddd;border-radius:6px;font-size:13.5px;box-sizing:border-box;" ` +
+      `onchange="editPickText('${q.id}', this.value)">${esc(val)}</textarea></div>`;
+  }
+  if (q.type === 'emotion') {
+    let h = `<div class="qa-row"><span class="q">${esc(q.title)}</span></div><div class="edit-opts">`;
+    q.groups.forEach(g => g.items.forEach(it => {
+      const checked = answers[it.id] === true;
+      h += `<label class="edit-chk"><input type="checkbox" ${checked ? 'checked' : ''} onclick="editToggleEmo('${it.id}')"> ${esc(it.text)}</label>`;
+    }));
+    h += `</div>`;
+    return h;
+  }
+
+  const inputType = q.type === 'multi' ? 'checkbox' : 'radio';
+  let h = `<div class="qa-row"><span class="q">${esc(q.title)}</span></div><div class="edit-opts">`;
+  q.opts.forEach(o => {
+    const checked = isEditSelected(q.id, o, q.type);
+    h += `<label class="edit-opt"><input type="${inputType}" name="edit_${q.id}" ${checked ? 'checked' : ''} onclick="editPick('${q.id}','${escJsAttr(o)}','${q.type}')"> ${esc(o)}</label>`;
+  });
+  h += `</div>`;
+
+  if (q.sub) {
+    const val = answers[q.id];
+    const chosen = Array.isArray(val) ? val : (val !== undefined ? [val] : []);
+    chosen.forEach(v => {
+      if (q.sub[v]) {
+        h += `<div class="qa-sub-block">`;
+        q.sub[v].forEach(sq => { h += renderSubQuestionRow(sq); });
+        h += `</div>`;
+      }
+    });
+  }
+  return h;
+}
+
+// 카테고리 카드 중 하나를 맨 앞으로 옮깁니다 (예: 감정을 형색성정 바로 다음, 문진 카드 중 맨 앞에 배치).
+function moveCatToFront(cats, name) {
+  const idx = cats.findIndex(c => c.name === name);
+  if (idx > 0) cats.unshift(cats.splice(idx, 1)[0]);
+  return cats;
+}
+
+function buildEditableCats() {
+  const cats = [];
+  let cur = null;
+  visibleQ().forEach(q => {
+    if (q.type === 'symptom_entry') return;
+    if (!cur || cur.name !== q.cat) { cur = { name: q.cat, rows: [] }; cats.push(cur); }
+    cur.rows.push(renderQuestionRow(q));
+  });
+  return moveCatToFront(cats, '감정');
+}
+
+// 문진 답변 수정(raw/summary)과 형색성정·주증상·메모(notes)를 한 번에 저장합니다.
+// 구글시트에서는 서로 다른 칸이라 따로 저장돼야 하지만, 원장님 입장에서는 버튼 하나면 충분합니다.
+// 저장 버튼은 사이드 패널 위/아래 두 곳에 있어, 상태 메시지도 둘 다(.save-status) 갱신합니다.
+function setSaveStatus(text, cls) {
+  document.querySelectorAll('.save-status').forEach(el => { el.textContent = text; el.className = 'save-status' + (cls ? ' ' + cls : ''); });
+}
+
+function saveAll(rowNum) {
+  setSaveStatus('저장 중...', '');
+  const payload = {
+    action: 'update',
+    key: adminKey,
+    rowNum: rowNum,
+    notes: JSON.stringify(doctorNotes),
+    height: editedVitals.height,
+    weight: editedVitals.weight
+  };
+  if (hasEditableAnswers) {
+    payload.raw = JSON.stringify(answers);
+    payload.summary = buildSummary();
+  }
+  fetch(GAS_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
+    .then(() => {
+      const r = records[selectedIdx];
+      if (r) {
+        r.doctorNotes = payload.notes;
+        r.height = payload.height;
+        r.weight = payload.weight;
+        if (hasEditableAnswers) { r.raw = payload.raw; r.summary = payload.summary; }
+      }
+      setSaveStatus('저장되었습니다 (' + new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) + ')', 'ok');
+    })
+    .catch(() => {
+      setSaveStatus('저장 실패 - 네트워크를 확인해주세요.', 'err');
+    });
+}
+
+// summary 텍스트("[카테고리] 질문: 답" / "   - 세부질문: 답")를 카테고리별 카드로 변환
+function parseSummary(summary) {
+  const cats = [];
+  let cur = null;
+  (summary || '').split('\n').forEach(line => {
+    if (!line.trim()) return;
+    const m = line.match(/^\[(.+?)\]\s(.*)$/);
+    if (m) {
+      if (!cur || cur.name !== m[1]) {
+        cur = { name: m[1], rows: [] };
+        cats.push(cur);
+      }
+      const [q, a] = splitQA(m[2]);
+      cur.rows.push({ type: 'main', q, a });
+    } else if (line.trim().startsWith('-') && cur) {
+      const content = line.trim().replace(/^-\s*/, '');
+      const [q, a] = splitQA(content);
+      cur.rows.push({ type: 'sub', q, a });
+    }
+  });
+  return cats;
+}
+
+function splitQA(text) {
+  const idx = text.lastIndexOf(': ');
+  if (idx === -1) return [text, ''];
+  return [text.slice(0, idx), text.slice(idx + 2)];
+}
+
+// ===== 주증상(CC) / 진료메모 / 처방메모 =====
+// 환자가 문진 마지막에 직접 적은 증상(answers.symptoms)이 있으면 그것을 CC 카드의 시작값으로 보여주고,
+// 없으면 원장님이 처음부터 채울 수 있도록 빈 카드 1개로 시작합니다.
+function seedDoctorNotesFromAnswers() {
+  const syms = Array.isArray(answers.symptoms) ? answers.symptoms : [];
+  const cc = syms.length
+    ? syms.map(s => ({
+        cc: s.symptom || '',
+        os: s.since || '',
+        symptom: s.how || '',
+        worse: '',
+        better: ''
+      }))
+    : [{ cc: '', os: '', symptom: '', worse: '', better: '' }];
+  return { cc, memo: '', prescription: '', tendency: null, myunsaek: null, bulgeun: null, gita: [], anjin: {}, shipments: [] };
+}
+
+// 예전 버전에서 저장된 doctorNotes(주증상/메모만 있던 시절)를 열어도 형색성정 항목이
+// 비어있는 채로 안전하게 동작하도록 빠진 필드를 채워줍니다.
+function normalizeDoctorNotes(n) {
+  if (!n.cc || n.cc.length === 0) n.cc = [{ cc: '', os: '', symptom: '', worse: '', better: '' }];
+  if (n.memo === undefined) n.memo = '';
+  if (n.prescription === undefined) n.prescription = '';
+  if (n.tendency === undefined) n.tendency = null;
+  if (n.myunsaek === undefined) n.myunsaek = null;
+  if (n.bulgeun === undefined) n.bulgeun = null;
+  if (!Array.isArray(n.gita)) n.gita = [];
+  if (!n.anjin || typeof n.anjin !== 'object') n.anjin = {};
+  if (!Array.isArray(n.shipments)) n.shipments = [];
+  return n;
+}
+
+function ccRow(label, field, i, val, shaded) {
+  return `<div class="cc-row${shaded ? ' shaded' : ''}"><span class="cc-label cc-${field}">${esc(label)}</span><textarea class="cc-input" oninput="updateCC(${i},'${field}',this.value)">${esc(val || '')}</textarea></div>`;
+}
+
+function renderChiefComplaints() {
+  return doctorNotes.cc.map((c, i) => {
+    let h = `<div class="cc-card">`;
+    if (doctorNotes.cc.length > 1) h += `<div class="cc-remove" onclick="removeCC(${i})">삭제</div>`;
+    h += ccRow('CC', 'cc', i, c.cc);
+    h += ccRow('O/S', 'os', i, c.os, true);
+    h += ccRow('증상', 'symptom', i, c.symptom);
+    h += ccRow('악화요인', 'worse', i, c.worse, true);
+    h += ccRow('완화요인', 'better', i, c.better);
+    h += `</div>`;
+    return h;
+  }).join('');
+}
+
+// 텍스트 입력은 매 글자마다 다시 그리면 커서 위치가 튀므로, 값만 조용히 갱신하고 화면은 다시 그리지 않습니다.
+function updateCC(i, field, val) { if (doctorNotes.cc[i]) doctorNotes.cc[i][field] = val; }
+
+function addCC() {
+  doctorNotes.cc.push({ cc: '', os: '', symptom: '', worse: '', better: '' });
+  document.getElementById('cc-list').innerHTML = renderChiefComplaints();
+}
+function removeCC(i) {
+  doctorNotes.cc.splice(i, 1);
+  if (doctorNotes.cc.length === 0) doctorNotes.cc.push({ cc: '', os: '', symptom: '', worse: '', better: '' });
+  document.getElementById('cc-list').innerHTML = renderChiefComplaints();
+}
+
+function toggleBig(id, btn) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const isBig = el.classList.toggle('big');
+  if (btn) btn.textContent = isBig ? '작게보기' : '크게보기';
+}
+
+// 0~6 dot-scale 값을 사람이 읽을 수 있는 텍스트로 변환 (AI에게 보낼 요약용)
+function scaleLabel(idx, left, right) {
+  if (idx === null || idx === undefined) return '미기록';
+  const steps = ['매우 ' + left, left, '약간 ' + left, '중간', '약간 ' + right, right, '매우 ' + right];
+  return steps[idx] !== undefined ? steps[idx] : String(idx);
+}
+
+// 현재 열려있는 환자의 문진 답변 / 형색성정 / 안진 / 주증상 / 진료메모를 AI에게 보낼
+// 하나의 텍스트로 정리합니다. answers/selectedGender는 이미 이 환자 것으로 채워져 있습니다.
+function buildPatientDataForAi(r) {
+  // 원장님이 키/몸무게를 고친 경우, AI 추천에도 원본이 아니라 고친 값을 넘깁니다.
+  const bmi = calcBMI(editedVitals.height, editedVitals.weight);
+  const lines = [];
+  lines.push(`이름: ${r.name || '-'} / 성별: ${r.gender || '-'} / 생년월일: ${r.birthDate || '-'}`);
+  lines.push(`키/몸무게: ${editedVitals.height || '-'}cm / ${editedVitals.weight || '-'}kg (BMI ${bmi ? bmi.toFixed(1) : '-'})`);
+  if (answers._growth) {
+    lines.push('');
+    lines.push('[소아 성장평가 - 참고용 통계 추정치]');
+    lines.push(buildGrowthSummaryText(answers._growth).split('\n').map(l => l.replace(/^\[.+?\]\s*/, '')).join('\n'));
+  }
+  lines.push('');
+  // 환자가 스스로 표현한 주소증을 맨 앞에 두어, 체크박스 응답보다 먼저·우선 고려하도록 합니다.
+  lines.push('[환자가 직접 호소한 주증상 - 최우선으로 고려]');
+  lines.push('· 주증상(CC, 원장이 정리)');
+  const ccLines = doctorNotes.cc.filter(c => c.cc || c.symptom).map(c => `  - CC: ${c.cc || '-'} / O·S: ${c.os || '-'} / 증상: ${c.symptom || '-'} / 악화요인: ${c.worse || '-'} / 완화요인: ${c.better || '-'}`);
+  lines.push(ccLines.length ? ccLines.join('\n') : '  (입력 없음)');
+  if (r.symptoms) {
+    lines.push('· 환자가 문진표에 직접 적은 원문');
+    lines.push('  ' + r.symptoms.replace(/\n/g, '\n  '));
+  }
+  lines.push('');
+  lines.push('[형색성정 - 원장 판단]');
+  lines.push(`성향: ${scaleLabel(doctorNotes.tendency, '양적', '음적')}`);
+  lines.push(`면색: ${scaleLabel(doctorNotes.myunsaek, '짙은편', '옅은편')}`);
+  lines.push(`붉은기: ${doctorNotes.bulgeun || '미기록'}`);
+  lines.push(`기타: ${doctorNotes.gita.length ? doctorNotes.gita.join(', ') : '해당없음'}`);
+  const anjinFound = Object.keys(doctorNotes.anjin).filter(k => doctorNotes.anjin[k] > 0).map(k => `${k}(${doctorNotes.anjin[k]}/3)`);
+  lines.push(`안진: ${anjinFound.length ? anjinFound.join(', ') : '기록없음'}`);
+  lines.push('');
+  lines.push('[문진 답변(체크박스)]');
+  lines.push(buildSummary() || '(답변 없음)');
+  lines.push('');
+  lines.push('[진료메모]');
+  lines.push(doctorNotes.memo || '(없음)');
+  return lines.join('\n');
+}
+
+// "증상복사" 버튼 - 환자가 적은 내용 + 원장님이 표시한 형색성정·안진·CC·메모·처방메모까지
+// 전부 한 번에 클립보드로 복사해서, EMR이나 다른 프로그램에 그대로 붙여넣을 수 있게 합니다.
+function buildFullPatientSummary(r) {
+  const lines = [buildPatientDataForAi(r)];
+  lines.push('');
+  lines.push('[처방메모]');
+  lines.push(doctorNotes.prescription || '(없음)');
+  return lines.join('\n');
+}
+
+function copyPatientSummary() {
+  const r = records[selectedIdx];
+  if (!r) return;
+  const text = buildFullPatientSummary(r);
+  const btn = document.getElementById('copy-summary-btn');
+  const original = '📋 증상복사';
+  const flash = (label) => {
+    if (!btn) return;
+    btn.textContent = label;
+    setTimeout(() => { btn.textContent = original; }, 1500);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => flash('✓ 복사되었습니다')).catch(() => flash('복사 실패'));
+  } else {
+    flash('이 브라우저에서는 복사가 지원되지 않습니다');
+  }
+}
+
+function runAiRecommend(rowNum) {
+  const status = document.getElementById('ai-status');
+  const resultEl = document.getElementById('ai-result');
+  const btn = document.getElementById('ai-run-btn');
+  if (btn) btn.disabled = true;
+  if (status) { status.textContent = 'AI가 분석 중입니다... (몇 초 정도 걸릴 수 있어요)'; status.className = 'ai-status'; }
+  if (resultEl) resultEl.innerHTML = '';
+
+  const r = records[selectedIdx];
+  const patientData = buildPatientDataForAi(r);
+  const payload = { action: 'ai_recommend', key: adminKey, rowNum: rowNum, patientData: patientData };
+
+  fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) })
+    .then(res => res.json())
+    .then(data => {
+      if (btn) btn.disabled = false;
+      if (!data || data.status !== 'ok') {
+        const msg = (data && data.message) || 'AI 분석에 실패했습니다.';
+        const rawHint = data && data.raw ? ('\n\n(AI가 실제로 보낸 내용 일부: ' + data.raw + ')') : '';
+        if (status) { status.textContent = msg + rawHint; status.className = 'ai-status err'; }
+        return;
+      }
+      lastAiResult = data.result;
+      if (r) r.aiResult = JSON.stringify(data.result); // 서버(구글시트)에도 이미 저장됨 - 화면에서도 바로 반영
+      if (status) status.textContent = '';
+      if (resultEl) resultEl.innerHTML = renderAiResult(data.result);
+    })
+    .catch(() => {
+      if (btn) btn.disabled = false;
+      if (status) { status.textContent = '서버에 연결하지 못했습니다. 네트워크를 확인해주세요.'; status.className = 'ai-status err'; }
+    });
+}
+
+function toggleAiReasons(btn) {
+  const el = btn.nextElementSibling;
+  const showing = el.style.display === 'block';
+  el.style.display = showing ? 'none' : 'block';
+  btn.textContent = showing ? '근거 보기' : '근거 숨기기';
+}
+
+function fillMemoFromCandidate(i) {
+  if (!lastAiResult || !lastAiResult.candidates || !lastAiResult.candidates[i]) return;
+  const c = lastAiResult.candidates[i];
+  const matched = (c.matched || []).map(m => '- ' + m).join('\n');
+  const missing = (c.missing || []).map(m => '- ' + m).join('\n');
+  const text = `[AI 추천] ${c.name} (적합도 ${c.fit_percent}%)\n${c.note || ''}\n\n[일치하는 근거]\n${matched || '(없음)'}\n\n[확인이 더 필요한 부분]\n${missing || '(없음)'}`;
+  doctorNotes.prescription = (doctorNotes.prescription ? doctorNotes.prescription + '\n\n---\n\n' : '') + text;
+  const el = document.getElementById('memo-presc');
+  if (el) el.value = doctorNotes.prescription;
+}
+
+function renderAiResult(result) {
+  const candidates = result.candidates || [];
+  const questions = result.additional_questions || [];
+  let h = '<div class="ai-candidates">';
+  candidates.forEach((c, i) => {
+    const matched = (c.matched || []).map(m => `<div class="m">✓ ${esc(m)}</div>`).join('');
+    const missing = (c.missing || []).map(m => `<div class="x">? ${esc(m)}</div>`).join('');
+    h += `<div class="ai-candidate" onclick="fillMemoFromCandidate(${i})">
+      <div class="ai-cand-top">
+        <span class="ai-cand-rank">${i + 1}순위</span>
+        <span class="ai-cand-name">${esc(c.name || '-')}</span>
+        <span class="ai-cand-fit">${c.fit_percent != null ? c.fit_percent + '%' : '-'}</span>
+      </div>
+      <div class="ai-fit-bar"><div class="ai-fit-fill" style="width:${Math.max(0, Math.min(100, c.fit_percent || 0))}%"></div></div>
+      <div class="ai-cand-note">${esc(c.note || '')}</div>
+      <div class="ai-toggle" onclick="event.stopPropagation();toggleAiReasons(this)">근거 보기</div>
+      <div class="ai-reasons" style="display:none">${matched}${missing}</div>
+    </div>`;
+  });
+  h += '</div>';
+  if (questions.length) {
+    const qLines = questions.map(q => {
+      // q가 문자열(예전 형식)이면 질문만, {question, reason} 객체면 이유도 함께 표시합니다.
+      const questionText = typeof q === 'string' ? q : (q.question || '');
+      const reasonText = typeof q === 'object' && q.reason ? q.reason : '';
+      return `<li>${esc(questionText)}${reasonText ? `<div class="ai-q-reason">${esc(reasonText)}</div>` : ''}</li>`;
+    }).join('');
+    h += `<div class="ai-questions"><h4>환자에게 추가로 확인하면 좋은 질문</h4><ul>${qLines}</ul></div>`;
+  }
+  return h;
+}
+
+function renderSidePanel(rowNum) {
+  let h = '';
+  h += `<div class="save-bar top">
+    <button onclick="saveWithPendingShipment(${rowNum}, false)">💾 저장</button>
+    <span class="save-status" id="save-status"></span>
+  </div>`;
+  h += `<div class="side-box cc">
+    <div class="side-box-hdr"><h3>🗒️ 주증상</h3><button class="side-btn" onclick="addCC()">CC 추가</button></div>
+    <div id="cc-list">${renderChiefComplaints()}</div>
+  </div>`;
+  h += `<div class="side-box memo">
+    <div class="side-box-hdr"><h3>📝 진료메모</h3><button class="side-btn ghost" onclick="toggleBig('memo-note', this)">크게보기</button></div>
+    <textarea class="memo-textarea" id="memo-note" oninput="doctorNotes.memo=this.value" placeholder="진료 중 원장님 의견을 적어주세요...">${esc(doctorNotes.memo || '')}</textarea>
+  </div>`;
+  h += `<div class="side-box ai">
+    <div class="side-box-hdr"><h3>✨ AI 처방 추천</h3></div>
+    <button class="ai-run-btn" id="ai-run-btn" onclick="runAiRecommend(${rowNum})">🤖 ${lastAiResult ? 'AI 처방 분석 다시 실행' : 'AI 처방 분석 실행'}</button>
+    <div class="ai-note">문진·형색성정·안진 데이터를 바탕으로 후보를 제시합니다. 최종 처방은 원장님이 직접 판단해주세요.</div>
+    <div class="ai-status" id="ai-status"></div>
+    <div id="ai-result">${lastAiResult ? renderAiResult(lastAiResult) : ''}</div>
+  </div>`;
+  h += `<div class="side-box presc">
+    <div class="side-box-hdr"><h3>💊 처방메모</h3><button class="side-btn ghost" onclick="toggleBig('memo-presc', this)">크게보기</button></div>
+    <textarea class="memo-textarea" id="memo-presc" oninput="doctorNotes.prescription=this.value" placeholder="처방 내용을 적어주세요...">${esc(doctorNotes.prescription || '')}</textarea>
+  </div>`;
+  h += renderShipmentBox(rowNum, false);
+  h += `<div class="save-bar">
+    <button onclick="saveWithPendingShipment(${rowNum}, false)">💾 저장</button>
+    <span class="save-status"></span>
+  </div>`;
+  return h;
+}
+
+function renderDetail(i) {
+  selectedIdx = i;
+  renderList();
+  const r = records[i];
+
+  let editableAnswers = null;
+  try { editableAnswers = r.raw ? JSON.parse(r.raw) : null; } catch (e) { editableAnswers = null; }
+
+  // 환자를 새로 열었을 때만 원본 데이터로 초기화합니다. 같은 환자를 다시 그릴 때는
+  // (문진 답변을 고치거나 주증상/메모를 입력한 내용이 지워지지 않도록) 그대로 유지합니다.
+  if (editingRowNum !== r.rowNum) {
+    answers = editableAnswers || {};
+    selectedGender = r.gender || null;
+    isChildPatient = isChildAge(r.birthDate);
+    childTier = isChildPatient ? childAgeTier(r.birthDate) : null;
+    let parsedNotes = null;
+    try { parsedNotes = r.doctorNotes ? JSON.parse(r.doctorNotes) : null; } catch (e) { parsedNotes = null; }
+    doctorNotes = normalizeDoctorNotes(parsedNotes || seedDoctorNotesFromAnswers());
+    // 이전 버전에서는 성향을 이 브라우저의 localStorage에만 저장했습니다.
+    // 아직 구글시트에 저장된 성향 값이 없다면, 예전에 로컬에 남겨둔 값을 이어서 씁니다.
+    if (doctorNotes.tendency === null) {
+      const legacy = localStorage.getItem('tendency_' + r.rowNum);
+      if (legacy !== null) doctorNotes.tendency = parseInt(legacy, 10);
+    }
+    try { lastAiResult = r.aiResult ? JSON.parse(r.aiResult) : null; } catch (e) { lastAiResult = null; }
+    editedVitals = { height: r.height || '', weight: r.weight || '' };
+    editingRowNum = r.rowNum;
+  }
+  hasEditableAnswers = !!editableAnswers;
+
+  let h = '';
+  h += `<div class="patient-card">
+    <div class="name">${esc(r.name || '(이름없음)')}${r.gender ? `<span class="gender-tag ${genderClass(r.gender)}">${esc(r.gender)}</span>` : ''}${childTagHtml(r)}</div>
+    <div class="field">전화번호<b>${esc(r.phone || '-')}</b></div>
+    <div class="field">생년월일<b>${esc(r.birthDate || '-')}</b></div>
+    <div class="field">키 / 몸무게 <span class="vital-hint">(수정 가능)</span>
+      <b class="vital-edit"><input type="number" step="0.1" class="vital-input" id="vital-height" value="${esc(editedVitals.height)}" oninput="updateVital('height', this.value)"> cm /
+      <input type="number" step="0.1" class="vital-input" id="vital-weight" value="${esc(editedVitals.weight)}" oninput="updateVital('weight', this.value)"> kg</b>
+    </div>
+    <div class="field">제출일시<b>${r.submittedAt ? new Date(r.submittedAt).toLocaleString('ko-KR') : '-'}</b></div>
+    <button class="copy-btn" id="copy-summary-btn" onclick="copyPatientSummary()">📋 증상복사</button>
+  </div>`;
+
+  h += `<div class="bmi-section">
+    <h3>체형 분석 (BMI 자동 계산)</h3>
+    <div id="bmi-body">${renderBMIBody()}</div>
+  </div>`;
+
+  const growthInfo = editableAnswers && editableAnswers._growth;
+  if (growthInfo) h += renderGrowthSection(growthInfo);
+
+  h += renderHSS();
+
+  if (r.symptoms) {
+    h += `<div class="symptom-box"><h3>환자가 직접 적은 증상</h3><pre>${esc(r.symptoms)}</pre></div>`;
+  }
+
+  if (editableAnswers) {
+    // 실제 라디오버튼/체크박스로 문진 답변을 그려서, 원장님이 진료 중 환자와 함께 보면서
+    // 잘못 표현된 답변이 있으면 바로 클릭해서 고칠 수 있게 합니다. (저장 버튼은 오른쪽 패널에 하나로 통합)
+    const cats = buildEditableCats();
+    h += `<div class="cat-grid">`;
+    cats.forEach(cat => {
+      h += `<div class="cat-card"><div class="cat-hdr">${esc(cat.name)}</div><div class="cat-body">${cat.rows.join('')}</div></div>`;
+    });
+    h += `</div>`;
+  } else {
+    // raw 데이터가 없거나 손상된 옛 기록은 예전처럼 읽기 전용 텍스트로 보여줍니다.
+    const cats = moveCatToFront(parseSummary(r.summary), '감정');
+    h += `<div class="cat-grid">`;
+    cats.forEach(cat => {
+      h += `<div class="cat-card"><div class="cat-hdr">${esc(cat.name)}</div><div class="cat-body">`;
+      cat.rows.forEach(row => {
+        if (row.type === 'main') {
+          h += `<div class="qa-row"><span class="q">${esc(row.q)}</span><br><span class="a">${esc(row.a)}</span></div>`;
+        } else {
+          h += `<div class="qa-sub"><b>${esc(row.q)}</b>: ${esc(row.a)}</div>`;
+        }
+      });
+      h += `</div></div>`;
+    });
+    h += `</div>`;
+  }
+
+  h += `<div class="raw-toggle" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display==='block' ? 'none' : 'block'">원본 데이터 보기(백업용)</div>`;
+  h += `<div class="raw-box">${esc(r.raw || '')}</div>`;
+
+  const sideH = renderSidePanel(r.rowNum);
+
+  document.getElementById('detail').innerHTML =
+    `<div class="two-col"><div class="col-main">${h}</div><div class="col-side">${sideH}</div></div>`;
+  enterMobileDetail();
+}
+
+// ===== 체성분(체중/골격근량/체지방량) 측정 기록 + 변화 추이 =====
+// 원장님이 진료 중 실측한 값을 기록하는 곳. 별도 시트 칸을 만들지 않고, 이미 있는
+// "원장 메모(JSON)" 칸(dietNotes) 안에 measurements 배열로 함께 저장합니다.
+// (구글 Apps Script를 다시 배포하지 않아도 되도록 한 설계입니다.)
+// 그래프는 같은 환자(전화번호 우선, 없으면 이름+생년월일)의 모든 다이어트 문진 행에
+// 쌓인 측정값을 한데 모아 시간순으로 보여줍니다 - 재내원 시 변화가 한눈에 보입니다.
+function bcNum_(v) { const n = parseFloat(v); return isFinite(n) ? n : null; }
+
+function collectDietPatientMeasurements(r) {
+  const phone = (r.phone || '').trim();
+  const rows = dietRecords.filter(function (x) {
+    if (phone) return (x.phone || '').trim() === phone;
+    return (x.name || '') === (r.name || '') && (x.birthDate || '') === (r.birthDate || '');
+  });
+  const out = [];
+  rows.forEach(function (x) {
+    let notes = null;
+    if (x.rowNum === editingDietRowNum) {
+      notes = dietNotes; // 방금 화면에서 추가/삭제한 (아직 저장 전) 값도 반영
+    } else {
+      try { notes = x.doctorNotes ? JSON.parse(x.doctorNotes) : null; } catch (e) { notes = null; }
+    }
+    const ms = (notes && Array.isArray(notes.measurements)) ? notes.measurements : [];
+    ms.forEach(function (m) {
+      if (!m || !m.d) return;
+      out.push({ d: String(m.d), w: bcNum_(m.w), smm: bcNum_(m.smm), bf: bcNum_(m.bf), memo: m.memo || '', src: m.src === 'self' ? 'self' : 'clinic' });
+    });
+  });
+  out.sort(function (a, b) { return a.d < b.d ? -1 : (a.d > b.d ? 1 : 0); });
+  return out;
+}
+
+// InBody "체성분 변화" 표처럼, 지표(체중/골격근량/체지방량)별로 가로 띠를 하나씩 두고
+// 그 안에 값 라벨 + 꺾은선 + 점을 그립니다. x축은 측정 순서대로 균등 간격(맨 아래 측정일 행).
+// 각 띠는 그 지표 자신의 최소~최대로 스케일해서, 변화 폭이 작아도 잘 보이게 합니다.
+function renderBodyTrendChart(rows) {
+  const defs = [
+    { key: 'w', label: '체중', color: '#2563eb', soft: '#dbeafe' },
+    { key: 'smm', label: '골격근량', color: '#0d9488', soft: '#d5f0eb' },
+    { key: 'bf', label: '체지방량', color: '#ea580c', soft: '#ffe6d2' }
+  ];
+  const pts = rows.filter(function (r) { return r.w != null || r.smm != null || r.bf != null; });
+  if (pts.length < 1) {
+    return '<div class="bc-empty">측정 기록을 추가하면 누적그래프가 표시됩니다.</div>';
+  }
+  const N = pts.length;
+  const labelW = 58;
+  const rowH = 44;
+  const dateH = 26;
+  const padR = 14, padT = 3;
+  // 측정 수치는 라벨 칸 바로 옆(x0)부터 시작해 왼쪽으로 바싹 붙입니다. 측정이 적으면
+  // 칸 간격(colStep)에 상한을 둬서 오른쪽으로 과하게 벌어지지 않게 합니다(InBody 스캔지 스타일).
+  const W = Math.max(440, 60 * N + labelW + padR + 36);
+  const H = padT + rowH * defs.length + dateH;
+  const plotL = labelW + 8;
+  const plotR = W - padR;
+  const plotW = plotR - plotL;
+  const x0 = plotL + 18;
+  const colStep = N <= 1 ? 0 : Math.min((plotW - 30) / (N - 1), 116);
+  const xAt = function (i) { return x0 + i * colStep; };
+
+  let svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" preserveAspectRatio="xMinYMid meet" style="display:block;min-width:' + Math.min(W, 560) + 'px;max-width:' + W + 'px;">';
+
+  defs.forEach(function (d, di) {
+    const bandY = padT + di * rowH;
+    const withV = [];
+    pts.forEach(function (p, i) { if (p[d.key] != null) withV.push({ i: i, v: p[d.key], src: p.src }); });
+    svg += '<rect x="0" y="' + bandY + '" width="' + W + '" height="' + rowH + '" fill="' + d.soft + '" opacity="0.55"/>';
+    svg += '<rect x="0" y="' + bandY + '" width="' + labelW + '" height="' + rowH + '" fill="' + d.color + '"/>';
+    svg += '<text x="' + (labelW / 2) + '" y="' + (bandY + rowH / 2 - 3) + '" text-anchor="middle" font-size="10.5" font-weight="700" fill="#fff">' + d.label + '</text>';
+    svg += '<text x="' + (labelW / 2) + '" y="' + (bandY + rowH / 2 + 10) + '" text-anchor="middle" font-size="8" fill="#fff" opacity="0.85">kg</text>';
+    svg += '<line x1="0" y1="' + (bandY + rowH) + '" x2="' + W + '" y2="' + (bandY + rowH) + '" stroke="#cfd4e0" stroke-width="1"/>';
+    if (withV.length === 0) {
+      svg += '<text x="' + (plotL + 24) + '" y="' + (bandY + rowH / 2 + 3) + '" text-anchor="middle" font-size="9" fill="#9aa1b2">기록 없음</text>';
+      return;
+    }
+    let vmin = Math.min.apply(null, withV.map(function (o) { return o.v; }));
+    let vmax = Math.max.apply(null, withV.map(function (o) { return o.v; }));
+    if (vmin === vmax) { vmin -= 1; vmax += 1; }
+    const innerTop = bandY + 20, innerBot = bandY + rowH - 8;
+    const yAt = function (v) { return innerBot - (v - vmin) / (vmax - vmin) * (innerBot - innerTop); };
+    if (withV.length >= 2) {
+      svg += '<polyline points="' + withV.map(function (o) { return xAt(o.i).toFixed(1) + ',' + yAt(o.v).toFixed(1); }).join(' ') +
+        '" fill="none" stroke="' + d.color + '" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>';
+    }
+    withV.forEach(function (o) {
+      const x = xAt(o.i), y = yAt(o.v);
+      const isSelf = o.src === 'self';
+      const dash = isSelf ? ' stroke-dasharray="2.4 1.6"' : '';
+      svg += '<text x="' + x.toFixed(1) + '" y="' + (bandY + 12) + '" text-anchor="middle" font-size="10" font-weight="700" fill="' + d.color + '">' + o.v.toFixed(1) + '</text>';
+      svg += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + (isSelf ? '2.9' : '3.4') + '" fill="#fff" stroke="' + d.color + '" stroke-width="2"' + dash + '/>';
+    });
+  });
+
+  const dRowY = padT + rowH * defs.length;
+  svg += '<rect x="0" y="' + dRowY + '" width="' + W + '" height="' + dateH + '" fill="#eef0f6"/>';
+  svg += '<rect x="0" y="' + dRowY + '" width="' + labelW + '" height="' + dateH + '" fill="#3a4256"/>';
+  svg += '<text x="' + (labelW / 2) + '" y="' + (dRowY + dateH / 2 + 3.5) + '" text-anchor="middle" font-size="9.5" font-weight="700" fill="#fff">측정일</text>';
+  const dStep = N > 9 ? 2 : 1;
+  pts.forEach(function (p, i) {
+    if (i % dStep !== 0 && i !== N - 1) return;
+    const parts = String(p.d).split('-');
+    const lab = parts.length === 3 ? (parts[0].slice(2) + '.' + parts[1] + '.' + parts[2]) : p.d;
+    svg += '<text x="' + xAt(i).toFixed(1) + '" y="' + (dRowY + dateH / 2 + 3.5) + '" text-anchor="middle" font-size="8.5" fill="#4a5064">' + lab + '</text>';
+  });
+
+  svg += '</svg>';
+
+  const legend = defs.map(function (d) {
+    const withV = pts.filter(function (p) { return p[d.key] != null; });
+    let delta = '';
+    if (withV.length >= 2) {
+      const diff = withV[withV.length - 1][d.key] - withV[0][d.key];
+      const sign = diff > 0 ? '+' : '';
+      // 골격근량은 늘어야 좋고(초록), 체중·체지방량은 줄어야 좋다(줄면 초록, 늘면 빨강)
+      const good = (d.key === 'smm') ? (diff >= 0) : (diff <= 0);
+      delta = '<span class="bc-delta ' + (good ? 'up-good' : 'down-bad') + '">' + sign + diff.toFixed(1) + 'kg</span>';
+    }
+    const last = withV.length ? withV[withV.length - 1][d.key].toFixed(1) + 'kg' : '-';
+    return '<span class="bc-leg"><i style="background:' + d.color + '"></i>' + d.label + ' <b>' + last + '</b> ' + delta + '</span>';
+  }).join('');
+  const hasSelf = pts.some(function (p) { return p.src === 'self'; });
+  const caption = hasSelf ? '<div class="bc-caption">점선 테두리 점 = 환자 자가측정(전화 비대면)</div>' : '';
+  return '<div class="bc-gridtitle">신체변화 누적그래프</div>' +
+    '<div class="bc-chart bc-grid">' + svg + '</div><div class="bc-legend">' + legend + '</div>' + caption;
+}
+
+function renderBodyCompSection(r) {
+  const rows = collectDietPatientMeasurements(r);
+  const own = Array.isArray(dietNotes.measurements) ? dietNotes.measurements : [];
+  const otherCount = rows.length - own.length;
+  const _t = new Date();
+  const today = _t.getFullYear() + '-' + String(_t.getMonth() + 1).padStart(2, '0') + '-' + String(_t.getDate()).padStart(2, '0');
+  const curW = (editedVitals.weight !== undefined && editedVitals.weight !== null && editedVitals.weight !== '') ? esc(editedVitals.weight) : '';
+
+  let table;
+  if (own.length) {
+    table = '<table class="bc-table"><thead><tr><th>날짜</th><th>출처</th><th>체중</th><th>골격근량</th><th>체지방량</th><th>메모</th><th></th></tr></thead><tbody>' +
+      own.map(function (m, i) {
+        const cell = function (x) { return (x !== undefined && x !== null && x !== '') ? esc(x) + 'kg' : '-'; };
+        const srcTag = m.src === 'self'
+          ? '<span class="src-tag self">자가</span>'
+          : '<span class="src-tag clinic">내원</span>';
+        return '<tr><td>' + esc(m.d || '') + '</td><td>' + srcTag + '</td><td>' + cell(m.w) + '</td><td>' + cell(m.smm) + '</td><td>' + cell(m.bf) +
+          '</td><td class="bc-memo">' + esc(m.memo || '') + '</td>' +
+          '<td><button class="bc-del" title="삭제" onclick="deleteMeasurement(' + r.rowNum + ', ' + i + ')">&#10005;</button></td></tr>';
+      }).join('') +
+      '</tbody></table>';
+  } else {
+    table = '<div class="bc-empty">아직 이 환자에 대해 기록한 체성분 측정값이 없습니다.</div>';
+  }
+
+  const otherNote = otherCount > 0 ? '<div class="bc-note">이전 방문에서 기록한 ' + otherCount + '건도 위 그래프에 함께 표시됩니다.</div>' : '';
+  // 기본 출처: 진료 방식이 '전화 비대면'이면 자가측정, 아니면 내원 실측
+  const defSrc = dietNotes.visitType === 'phone' ? 'self' : 'clinic';
+
+  return '<div class="bmi-section bc-section">' +
+    '<h3>체성분 측정 · 변화 추이</h3>' +
+    '<div class="sub">진료 중 실측한 체중·골격근량·체지방량(kg)을 기록하면, 다시 내원했을 때 변화가 그래프로 표시됩니다. 저장 버튼을 따로 누르지 않아도 추가·삭제 시 자동 저장됩니다.</div>' +
+    renderBodyTrendChart(rows) +
+    otherNote +
+    table +
+    '<div class="bc-form">' +
+      '<label>날짜<input type="date" id="m-date" value="' + today + '"></label>' +
+      '<label>출처<select class="bc-src" id="m-src">' +
+        '<option value="clinic"' + (defSrc === 'clinic' ? ' selected' : '') + '>내원 실측</option>' +
+        '<option value="self"' + (defSrc === 'self' ? ' selected' : '') + '>자가측정(전화)</option>' +
+      '</select></label>' +
+      '<label>체중(kg)<input type="number" step="0.1" id="m-weight" value="' + curW + '" placeholder="예: 62.5"></label>' +
+      '<label>골격근량(kg)<input type="number" step="0.1" id="m-smm" placeholder="예: 24.1"></label>' +
+      '<label>체지방량(kg)<input type="number" step="0.1" id="m-bf" placeholder="예: 18.3"></label>' +
+      '<label class="bc-memo-in">메모<input type="text" id="m-memo" placeholder="선택 입력 (예: 3주차)"></label>' +
+      '<button class="bc-add" onclick="addMeasurement(' + r.rowNum + ')">&#43; 측정 기록 추가</button>' +
+    '</div>' +
+  '</div>';
+}
+
+function addMeasurement(rowNum) {
+  const d = (document.getElementById('m-date').value || '').trim();
+  const w = document.getElementById('m-weight').value.trim();
+  const smm = document.getElementById('m-smm').value.trim();
+  const bf = document.getElementById('m-bf').value.trim();
+  const memo = document.getElementById('m-memo').value.trim();
+  if (!d) { alert('측정 날짜를 선택해주세요.'); return; }
+  if (w === '' && smm === '' && bf === '') { alert('체중·골격근량·체지방량 중 하나 이상 입력해주세요.'); return; }
+  const srcEl = document.getElementById('m-src');
+  const m = { d: d, src: (srcEl && srcEl.value === 'self') ? 'self' : 'clinic' };
+  if (w !== '') m.w = Number(w);
+  if (smm !== '') m.smm = Number(smm);
+  if (bf !== '') m.bf = Number(bf);
+  if (memo) m.memo = memo;
+  if (!Array.isArray(dietNotes.measurements)) dietNotes.measurements = [];
+  dietNotes.measurements.push(m);
+  dietNotes.measurements.sort(function (a, b) { return a.d < b.d ? -1 : (a.d > b.d ? 1 : 0); });
+  saveDietAll(rowNum);
+  renderDietDetail(selectedDietIdx);
+}
+
+function deleteMeasurement(rowNum, idx) {
+  if (!Array.isArray(dietNotes.measurements) || !dietNotes.measurements[idx]) return;
+  if (!confirm('이 측정 기록을 삭제할까요?')) return;
+  dietNotes.measurements.splice(idx, 1);
+  saveDietAll(rowNum);
+  renderDietDetail(selectedDietIdx);
+}
+
+// ===== 처방 기록 / 전화 예정일 =====
+// 한약을 처방할 때마다(보통 2제 이상을 한 번에 다 주지 않고, 1제씩 처방하며 그 사이에
+// 전화로 경과를 확인) 처방일을 기록해두면, 도착 예상일과 다음 전화 예정일(복용 10일쯤 후)을
+// 자동으로 계산해 보여줍니다. 한약문진(doctorNotes)/다이어트문진(dietNotes) 양쪽에서 공용으로 씁니다.
+function shipmentNotesOf(isDiet) { return isDiet ? dietNotes : doctorNotes; }
+
+function addShipment(rowNum, isDiet) {
+  const idPrefix = isDiet ? 'diet-' : '';
+  const dateEl = document.getElementById(idPrefix + 'ship-date');
+  const prescEl = document.getElementById(idPrefix + 'ship-presc');
+  const totalEl = document.getElementById(idPrefix + 'ship-total');
+  const seqEl = document.getElementById(idPrefix + 'ship-seq');
+  const memoEl = document.getElementById(idPrefix + 'ship-memo');
+  const d = (dateEl.value || '').trim();
+  if (!d) { alert('처방 날짜를 선택해주세요.'); return; }
+  const notes = shipmentNotesOf(isDiet);
+  if (!Array.isArray(notes.shipments)) notes.shipments = [];
+  notes.shipments.push({
+    id: Date.now(),
+    date: d,
+    prescription: (prescEl.value || '').trim(),
+    totalPacks: totalEl.value ? parseInt(totalEl.value, 10) : null,
+    packNum: seqEl.value ? parseInt(seqEl.value, 10) : null,
+    memo: (memoEl.value || '').trim(),
+    called: false
+  });
+  if (isDiet) { saveDietAll(rowNum); renderDietDetail(selectedDietIdx); }
+  else { saveAll(rowNum); renderDetail(selectedIdx); }
+}
+
+// 처방 입력칸(처방명/제차수/메모)을 채워놓고 "+ 처방 기록 추가" 대신 "💾 저장"만 눌러도
+// 처방 기록이 빠지지 않도록, 저장 버튼은 입력칸에 내용이 있으면 처방 기록 추가까지 함께 처리합니다.
+// (날짜 칸은 항상 오늘 날짜가 기본으로 들어 있으므로 판단 기준에서 뺍니다.)
+function saveWithPendingShipment(rowNum, isDiet) {
+  const idPrefix = isDiet ? 'diet-' : '';
+  const hasPending = ['ship-presc', 'ship-total', 'ship-seq', 'ship-memo'].some(function (id) {
+    const el = document.getElementById(idPrefix + id);
+    return el && (el.value || '').trim() !== '';
+  });
+  if (hasPending) { addShipment(rowNum, isDiet); return; } // addShipment가 저장까지 함께 합니다
+  if (isDiet) saveDietAll(rowNum); else saveAll(rowNum);
+}
+
+// 처방명/제차수를 "쌍화탕 2-1제"처럼 한 줄로 합쳐서 보여주기 위한 라벨.
+// 옛날에 저장된 기록(처방명/제차수 없이 memo만 있던 시절)은 그냥 빈 라벨을 돌려주고,
+// 그 memo 내용은 shipmentRowHtml/캘린더 쪽에서 별도 줄로 그대로 보여줍니다.
+// 통화 결과: 예전에는 called(했다/안했다) 하나뿐이었지만, "전화는 걸었는데 안 받았다"도
+// 구분할 수 있도록 성공(success)/실패(failed)/미시도(null, 아직 시도 안 함) 세 가지로 관리합니다.
+// 예전에 저장된 called(불리언)만 있는 기록도 그대로 읽히도록(성공=true) 호환해서 읽습니다.
+function callStatusOf(s) {
+  if (s.callStatus === 'success' || s.callStatus === 'failed') return s.callStatus;
+  return s.called ? 'success' : null;
+}
+// 통화 실패가 몇 번째인지(재시도 횟수). 예전 기록은 이 값이 없으니 0으로 봅니다.
+function callFailCountOf(s) {
+  return s.callFailCount || 0;
+}
+// 통화 성공(◯)/실패(✓N) 여부를 환자이름 옆에 작게 표시하기 위한 아이콘.
+// 실패는 여러 번 이어질 수 있어서 몇 번째 실패인지 숫자를 함께 보여줍니다.
+function callStatusMarkHtml(status, failCount) {
+  if (status === 'success') return '<span class="call-status-mark success" title="통화 성공">◯</span>';
+  if (status === 'failed') return `<span class="call-status-mark fail" title="통화 실패 ${failCount || 1}회 · 재시도 필요">✓${failCount || 1}</span>`;
+  return '';
+}
+
+function packLabel(s) {
+  const parts = [];
+  if (s.prescription) parts.push(s.prescription);
+  if (s.totalPacks && s.packNum) parts.push(s.totalPacks + '-' + s.packNum + '제');
+  else if (s.packNum) parts.push(s.packNum + '번째 제');
+  return parts.join(' · ');
+}
+
+// 달력 날짜 칸에 넣는 축약형 - 처방명은 빼고 "총-차수"만 (예: "2-1"). 칸이 좁아 이름만으로도
+// 이미 길기 때문에, 처방명은 날짜 클릭 시 아래 상세 목록에서만 보여줍니다.
+function calCompactLabel(e) {
+  if (e.totalPacks && e.packNum) return e.totalPacks + '-' + e.packNum;
+  if (e.packNum) return String(e.packNum);
+  return '';
+}
+
+// status는 'success'(통화 성공) 또는 'failed'(통화는 했지만 실패/연결 안됨).
+// 성공은 이미 그 상태에서 다시 누르면 취소할 수 있게(미시도로 되돌리기) null로 되돌립니다.
+// 실패는 여러 번 이어질 수 있으므로 취소하지 않고 누를 때마다 실패 횟수를 하나씩 늘립니다
+// (버튼이 계속 눌려 있는 것처럼 보여도 다시 눌러 다음 실패를 기록할 수 있어야 하기 때문).
+function setShipmentCallStatus(rowNum, id, isDiet, status) {
+  const notes = shipmentNotesOf(isDiet);
+  const s = (notes.shipments || []).find(function (x) { return x.id === id; });
+  if (!s) return;
+  applyCallStatus_(s, status);
+  if (isDiet) { saveDietAll(rowNum); renderDietDetail(selectedDietIdx); }
+  else { saveAll(rowNum); renderDetail(selectedIdx); }
+}
+
+// 통화 성공/실패 버튼 클릭 시 기록 하나(s)의 상태를 바꾸는 공통 로직.
+// setShipmentCallStatus(환자 상세화면)와 calSetCallStatus(달력)가 함께 씁니다.
+function applyCallStatus_(s, status) {
+  const current = callStatusOf(s);
+  if (status === 'failed') {
+    s.callStatus = 'failed';
+    s.callFailCount = callFailCountOf(s) + 1;
+    s.callDoneDate = null;
+  } else {
+    s.callStatus = (current === status) ? null : status;
+    if (s.callStatus === 'success') {
+      s.callFailCount = 0;
+      // 통화예정일(전화예정)이 아니라, 실제로 통화 성공을 누른 오늘 날짜로 달력에 표시하기 위해 기록.
+      s.callDoneDate = toYMD(new Date());
+    } else {
+      s.callDoneDate = null;
+    }
+  }
+  s.called = s.callStatus === 'success'; // 예전 버전(불리언 called만 읽던 코드)과의 호환용
+}
+
+function deleteShipment(rowNum, id, isDiet) {
+  if (!confirm('이 처방 기록을 삭제할까요?')) return;
+  const notes = shipmentNotesOf(isDiet);
+  notes.shipments = (notes.shipments || []).filter(function (x) { return x.id !== id; });
+  if (isDiet) { saveDietAll(rowNum); renderDietDetail(selectedDietIdx); }
+  else { saveAll(rowNum); renderDetail(selectedIdx); }
+}
+
+function shipmentRowHtml(rowNum, s, isDiet) {
+  const shipDate = parseYMD(s.date);
+  const arrival = estimateArrival(s.date);
+  const call = estimateCallDate(s.date);
+  const todayStr = toYMD(new Date());
+  const status = callStatusOf(s);
+  const overdue = status !== 'success' && call && toYMD(call) < todayStr;
+  let cls = 'ship-row';
+  if (status === 'success') cls += ' done';
+  else if (overdue) cls += ' overdue';
+  const label = packLabel(s);
+  return `<div class="${cls}">
+    <div class="ship-main">
+      <span class="ship-date">${fmtMD(shipDate)} 처방</span>
+      ${label ? `<span class="ship-memo">${esc(label)}</span>` : ''}
+      ${callStatusMarkHtml(status, callFailCountOf(s))}
+    </div>
+    ${s.memo ? `<div class="ship-note">${esc(s.memo)}</div>` : ''}
+    <div class="ship-sub">도착예상 ${fmtRange(arrival && arrival.min, arrival && arrival.max)} · 전화예정 <b>${fmtMD(call)}</b>${overdue ? ' (지남)' : ''}</div>
+    <div class="ship-actions">
+      <button class="ship-btn success${status === 'success' ? ' on' : ''}" onclick="setShipmentCallStatus(${rowNum}, ${s.id}, ${isDiet}, 'success')">◯ 통화 성공</button>
+      <button class="ship-btn fail${status === 'failed' ? ' on' : ''}" onclick="setShipmentCallStatus(${rowNum}, ${s.id}, ${isDiet}, 'failed')">✓ 통화 실패</button>
+      <button class="ship-del" onclick="deleteShipment(${rowNum}, ${s.id}, ${isDiet})">삭제</button>
+    </div>
+  </div>`;
+}
+
+function renderShipmentBox(rowNum, isDiet) {
+  const notes = shipmentNotesOf(isDiet);
+  const idPrefix = isDiet ? 'diet-' : '';
+  const list = Array.isArray(notes.shipments) ? notes.shipments.slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; }) : [];
+  const rowsHtml = list.length ? list.map(function (s) { return shipmentRowHtml(rowNum, s, isDiet); }).join('') : '<div class="ship-empty">등록된 처방 기록이 없습니다.</div>';
+  return `<div class="side-box ship">
+    <div class="side-box-hdr"><h3>📅 처방 · 전화 예정</h3></div>
+    <div class="ship-add">
+      <input type="date" id="${idPrefix}ship-date" value="${toYMD(new Date())}">
+      <input type="text" id="${idPrefix}ship-presc" placeholder="처방명(예: 쌍화탕)">
+      <span class="ship-seq-group">
+        <input type="number" min="1" id="${idPrefix}ship-total" placeholder="총">
+        <span>-</span>
+        <input type="number" min="1" id="${idPrefix}ship-seq" placeholder="번째">
+        <span>제</span>
+      </span>
+    </div>
+    <div class="ship-add">
+      <input type="text" id="${idPrefix}ship-memo" placeholder="기타 메모(선택)">
+      <button class="side-btn" onclick="addShipment(${rowNum}, ${isDiet})">+ 처방 기록 추가</button>
+    </div>
+    <div class="ship-list">${rowsHtml}</div>
+  </div>`;
+}
+
+// ===== 처방·전화 달력(모달) =====
+// 한약문진/다이어트문진 환자 전체의 처방 기록을 모아, 특정 날짜에 누구를 처방했고
+// 누구에게 전화할 때인지 한눈에 보여줍니다.
+function collectShipmentEvents_() {
+  const evs = [];
+  function fromList(list, isDiet) {
+    list.forEach(function (r) {
+      let notes = null;
+      try { notes = r.doctorNotes ? JSON.parse(r.doctorNotes) : null; } catch (e) { notes = null; }
+      const ships = (notes && Array.isArray(notes.shipments)) ? notes.shipments : [];
+      ships.forEach(function (s) {
+        if (!s.date) return;
+        const arrival = estimateArrival(s.date);
+        const call = estimateCallDate(s.date);
+        const status = callStatusOf(s);
+        const base = {
+          id: s.id, rowNum: r.rowNum, name: r.name, phone: r.phone, isDiet: isDiet,
+          prescription: s.prescription || '', totalPacks: s.totalPacks || null, packNum: s.packNum || null,
+          label: packLabel(s), memo: s.memo || '', shipDate: s.date,
+          callStatus: status, callFailCount: callFailCountOf(s), called: status === 'success',
+          arrivalText: arrival ? fmtRange(arrival.min, arrival.max) : '-',
+          callText: call ? fmtMD(call) : '-'
+        };
+        evs.push(Object.assign({ type: 'ship', date: s.date }, base));
+        if (call) {
+          const schedStr = toYMD(call);
+          const todayStr = toYMD(new Date());
+          // 통화가 성공 처리됐다면 통화예정일이 아니라 실제로 통화 성공을 누른 그 날짜에 표시합니다
+          // (예: 어제가 예정일이었는데 놓치고 오늘 통화가 됐다면 오늘 날짜에 표시).
+          // 아직 성공 처리되지 않았다면, 예정일이 지나도 그 날짜에 그대로 두지 않고 "오늘" 날짜로
+          // 끌어와서 보여줍니다 - 실패했거나 아직 못 걸었으면 해결될 때까지 매일 다시 눈에 띄게 하기 위해서입니다.
+          const displayDate = status === 'success' ? (s.callDoneDate || schedStr) : (schedStr > todayStr ? schedStr : todayStr);
+          evs.push(Object.assign({ type: 'call', date: displayDate, scheduledDate: schedStr }, base));
+        }
+      });
+    });
+  }
+  fromList(records, false);
+  fromList(dietRecords, true);
+  return evs;
+}
+
+function pendingCallCount_() {
+  const today = toYMD(new Date());
+  let count = 0;
+  collectShipmentEvents_().forEach(function (e) {
+    if (e.type === 'call' && e.callStatus !== 'success' && e.date <= today) count++;
+  });
+  return count;
+}
+
+function updateCalendarBadge() {
+  const el = document.getElementById('cal-badge-dot');
+  if (!el) return;
+  const n = pendingCallCount_();
+  el.style.display = n > 0 ? 'flex' : 'none';
+  el.textContent = n > 99 ? '99+' : String(n);
+}
+
+function openCalendar() {
+  const now = new Date();
+  if (calYear === null) { calYear = now.getFullYear(); calMonth = now.getMonth(); }
+  calSelectedDate = toYMD(now);
+  document.getElementById('calendar-modal').classList.add('open');
+  renderCalendar();
+}
+function closeCalendar() {
+  document.getElementById('calendar-modal').classList.remove('open');
+}
+function calPrevMonth() { calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; } renderCalendar(); }
+function calNextMonth() { calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; } renderCalendar(); }
+function calToday() {
+  const now = new Date();
+  calYear = now.getFullYear(); calMonth = now.getMonth(); calSelectedDate = toYMD(now);
+  renderCalendar();
+}
+
+function renderCalendar() {
+  const events = collectShipmentEvents_();
+  const byDate = {};
+  events.forEach(function (e) {
+    if (!byDate[e.date]) byDate[e.date] = { ship: [], call: [] };
+    byDate[e.date][e.type].push(e);
+  });
+
+  const todayStr = toYMD(new Date());
+  const first = new Date(calYear, calMonth, 1);
+  const startOffset = first.getDay();
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  const prevMonthDays = new Date(calYear, calMonth, 0).getDate();
+
+  const dowHtml = ['일', '월', '화', '수', '목', '금', '토'].map(function (d) { return `<div class="cal-dow">${d}</div>`; }).join('');
+  let cells = '';
+  for (let i = 0; i < startOffset; i++) {
+    cells += `<div class="cal-cell other-month"><div class="cal-daynum">${prevMonthDays - startOffset + i + 1}</div></div>`;
+  }
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dateStr = calYear + '-' + String(calMonth + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
+    const info = byDate[dateStr];
+    const shipList = info ? info.ship : [];
+    const callList = info ? info.call : [];
+    // 날짜 칸에는 "처방 3건"처럼 개수만 뭉뚱그리지 않고, 어느 환자인지 바로 보이도록
+    // "환자이름 제차수" / "환자이름 통화" 식으로 한 명씩 줄을 나눠 보여줍니다.
+    // 처방명까지 넣으면 칸이 너무 커져서, 칸 안에는 이름+제차수만 간단히 보여주고
+    // 처방명 등 자세한 내용은 날짜를 눌렀을 때 아래 상세 목록에서 보여줍니다.
+    let badges = '';
+    shipList.forEach(function (e) {
+      const seq = calCompactLabel(e);
+      const text = (e.name || '(이름없음)') + (seq ? ' ' + seq : '');
+      badges += `<span class="cal-badge ship">${esc(text)}</span>`;
+    });
+    callList.forEach(function (e) {
+      let mark = '';
+      let statusCls = '';
+      if (e.callStatus === 'success') { mark = ' ◯'; statusCls = ' done'; }
+      else if (e.callStatus === 'failed') { mark = ' ✓' + (e.callFailCount || 1); statusCls = ' fail'; }
+      const text = (e.name || '(이름없음)') + ' 통화' + mark;
+      badges += `<span class="cal-badge call${statusCls}">${esc(text)}</span>`;
+    });
+    const cls = ['cal-cell'];
+    if (dateStr === todayStr) cls.push('today');
+    if (dateStr === calSelectedDate) cls.push('selected');
+    cells += `<div class="${cls.join(' ')}" onclick="calSelectDay('${dateStr}')"><div class="cal-daynum">${day}</div>${badges}</div>`;
+  }
+  const totalCells = startOffset + daysInMonth;
+  const trailing = (7 - (totalCells % 7)) % 7;
+  for (let i = 1; i <= trailing; i++) {
+    cells += `<div class="cal-cell other-month"><div class="cal-daynum">${i}</div></div>`;
+  }
+
+  document.getElementById('cal-title').textContent = calYear + '년 ' + (calMonth + 1) + '월';
+  document.getElementById('cal-grid').innerHTML = dowHtml + cells;
+  renderCalDetail(byDate[calSelectedDate]);
+  updateCalendarBadge();
+}
+
+function calSelectDay(dateStr) {
+  calSelectedDate = dateStr;
+  renderCalendar();
+}
+
+function renderCalDetail(info) {
+  const dateEl = document.getElementById('cal-detail-date');
+  const bodyEl = document.getElementById('cal-detail-body');
+  const d = calSelectedDate ? parseYMD(calSelectedDate) : null;
+  dateEl.textContent = d ? fmtMD(d) : '';
+
+  let html = renderCalAddForm();
+  if (!info || (info.ship.length === 0 && info.call.length === 0)) {
+    html += '<div class="cal-empty">이 날짜에는 처방·전화 예정이 없습니다.</div>';
+  } else {
+    info.ship.forEach(function (e) { html += calEventRowHtml(e, 'ship'); });
+    info.call.forEach(function (e) { html += calEventRowHtml(e, 'call'); });
+  }
+  bodyEl.innerHTML = html;
+}
+
+function calEventRowHtml(e, kind) {
+  // 수정 버튼을 누른 처방 기록은, 목록 줄 대신 바로 그 자리에 입력폼으로 바꿔서 보여줍니다.
+  if (calEditingShipId === e.id) {
+    return `<div class="cal-event cal-event-edit">
+      <div class="cal-add-row">
+        <input type="date" id="cal-edit-date" value="${esc(e.shipDate)}">
+        <input type="text" id="cal-edit-presc" value="${esc(e.prescription || '')}" placeholder="처방명(예: 쌍화탕)">
+      </div>
+      <div class="cal-add-row">
+        <span class="ship-seq-group">
+          <input type="number" min="1" id="cal-edit-total" value="${e.totalPacks || ''}" placeholder="총">
+          <span>-</span>
+          <input type="number" min="1" id="cal-edit-seq" value="${e.packNum || ''}" placeholder="번째">
+          <span>제</span>
+        </span>
+        <input type="text" id="cal-edit-memo" value="${esc(e.memo || '')}" placeholder="기타 메모">
+      </div>
+      <div class="cal-add-row">
+        <button class="side-btn" onclick="calSaveEdit(${e.rowNum}, ${e.isDiet}, ${e.id})">저장</button>
+        <button class="ship-del" onclick="calCancelEdit()">취소</button>
+      </div>
+    </div>`;
+  }
+  const callTagLabel = e.callStatus === 'success' ? '통화 성공' : (e.callStatus === 'failed' ? `실패${e.callFailCount || 1}(재시도 필요)` : '전화예정');
+  const tagHtml = kind === 'ship'
+    ? `<span class="cal-ev-tag ship">처방</span>${callStatusMarkHtml(e.callStatus, e.callFailCount)}`
+    : `<span class="cal-ev-tag call${e.callStatus === 'success' ? ' done' : (e.callStatus === 'failed' ? ' fail' : '')}">${callTagLabel}</span>`;
+  const subHtml = kind === 'ship'
+    ? `도착예상 ${e.arrivalText} · 전화예정 ${e.callText}`
+    : `처방일 ${fmtMD(parseYMD(e.shipDate))} · 전화예정 ${e.callText}`;
+  return `<div class="cal-event">
+    <div>
+      ${tagHtml}<b>${esc(e.name || '(이름없음)')}</b> <span style="color:var(--ink-500)">${esc(formatPhone(e.phone) || '')}</span>${e.label ? ' · ' + esc(e.label) : ''}${e.memo ? ' · ' + esc(e.memo) : ''}
+      <div class="cal-event-sub">${subHtml}</div>
+      <div class="cal-event-actions">
+        <button class="ship-btn success${e.callStatus === 'success' ? ' on' : ''}" onclick="calSetCallStatus(${e.rowNum}, ${e.isDiet}, ${e.id}, 'success')">◯ 통화 성공</button>
+        <button class="ship-btn fail${e.callStatus === 'failed' ? ' on' : ''}" onclick="calSetCallStatus(${e.rowNum}, ${e.isDiet}, ${e.id}, 'failed')">✓ 통화 실패</button>
+        <button class="side-btn ghost" onclick="calStartEdit(${e.id})">수정</button>
+        <button class="ship-del" onclick="calDeleteShipment(${e.rowNum}, ${e.isDiet}, ${e.id})">삭제</button>
+      </div>
+    </div>
+    <button onclick="jumpToPatient(${e.rowNum}, ${e.isDiet})">환자 열기</button>
+  </div>`;
+}
+
+// 달력 안에서 바로 새 처방 기록을 추가하는 폼 - 환자 상세화면까지 갈 필요 없이,
+// 어느 환자인지만 골라서 선택한 날짜로 바로 등록합니다.
+function renderCalAddForm() {
+  const options = calPatientOptions();
+  const optionsHtml = options.map(function (o) { return `<option value="${o.value}">${esc(o.label)}</option>`; }).join('');
+  return `<div class="cal-add-form">
+    <div class="cal-add-row">
+      <select id="cal-add-patient" onchange="calOnPatientSelectChange()">
+        <option value="manual">+ 직접 입력 (문진 안 한 환자)</option>
+        ${optionsHtml}
+      </select>
+      <input type="date" id="cal-add-date" value="${esc(calSelectedDate || toYMD(new Date()))}">
+    </div>
+    <div class="cal-add-row" id="cal-add-manual-row">
+      <input type="text" id="cal-add-manual-name" placeholder="환자 이름">
+      <input type="text" id="cal-add-manual-phone" placeholder="전화번호(선택)">
+      <span class="ship-seq-group">
+        <label><input type="radio" name="cal-add-manual-form" value="herbal" checked> 한약</label>
+        <label><input type="radio" name="cal-add-manual-form" value="diet"> 다이어트</label>
+      </span>
+    </div>
+    <div class="cal-add-row">
+      <input type="text" id="cal-add-presc" placeholder="처방명(예: 쌍화탕)">
+      <span class="ship-seq-group">
+        <input type="number" min="1" id="cal-add-total" placeholder="총">
+        <span>-</span>
+        <input type="number" min="1" id="cal-add-seq" placeholder="번째">
+        <span>제</span>
+      </span>
+    </div>
+    <div class="cal-add-row">
+      <input type="text" id="cal-add-memo" placeholder="기타 메모(선택)">
+      <button class="side-btn" id="cal-add-btn" onclick="calAddShipment()">+ 이 날짜로 처방 기록 추가</button>
+    </div>
+  </div>`;
+}
+
+// 환자 선택 칸에서 "+ 직접 입력"을 골랐을 때만 이름/전화번호 입력칸을 보여주고,
+// 기존 환자를 골랐을 때는 그 환자의 이름/전화번호/최근 처방 내용을 자동으로 채워줍니다.
+function calOnPatientSelectChange() {
+  const sel = document.getElementById('cal-add-patient');
+  const row = document.getElementById('cal-add-manual-row');
+  if (!sel || !row) return;
+  row.hidden = sel.value !== 'manual';
+  calFillFromPatient_(sel.value);
+}
+
+// 그 환자의 처방 기록 중 날짜가 가장 최근인 것 하나를 돌려줍니다(없으면 null).
+// "몇 번째 약" 자동 증가(예: 직전이 4-1이면 다음은 4-2)에 씁니다.
+function calLastShipment_(rec) {
+  let notes;
+  try { notes = rec.doctorNotes ? JSON.parse(rec.doctorNotes) : null; } catch (e) { notes = null; }
+  const list = notes && Array.isArray(notes.shipments) ? notes.shipments : [];
+  if (!list.length) return null;
+  return list.slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; })[0];
+}
+
+// 환자 선택 칸의 값(value)에 맞춰 이름/전화번호/처방명/제차수 칸을 채우거나 비웁니다.
+// "+ 직접 입력"이면 새로 적을 수 있게 비우고, 기존 환자면 그 환자의 이름·전화번호와
+// 가장 최근 처방명·총 제수를 그대로 가져오되 번째 수만 다음 번(+1)으로 자동 올려둡니다.
+// 처방명·총 제수는 그대로 두되 그대로 발송하면 안 되는 경우도 있으니 원장님이 고칠 수 있게 둡니다.
+function calFillFromPatient_(value) {
+  const nameEl = document.getElementById('cal-add-manual-name');
+  const phoneEl = document.getElementById('cal-add-manual-phone');
+  const prescEl = document.getElementById('cal-add-presc');
+  const totalEl = document.getElementById('cal-add-total');
+  const seqEl = document.getElementById('cal-add-seq');
+  if (value === 'manual') {
+    if (nameEl) { nameEl.value = ''; nameEl.disabled = false; }
+    if (phoneEl) { phoneEl.value = ''; phoneEl.disabled = false; }
+    if (prescEl) prescEl.value = '';
+    if (totalEl) totalEl.value = '';
+    if (seqEl) seqEl.value = '';
+    return;
+  }
+  const parts = value.split(':');
+  const isDiet = parts[0] === '1';
+  const rowNum = parseInt(parts[1], 10);
+  const rec = calFindRec_(rowNum, isDiet);
+  if (!rec) return;
+  // 기존 환자는 이름·전화번호가 이미 정해져 있으니(위 선택 칸에 그대로 나와 있음) 확인용으로만
+  // 채워두고 고칠 수 없게 잠급니다. 실제로 처방 기록을 저장할 때도 이 칸이 아니라 선택된
+  // 환자 레코드(rec.name/rec.phone)를 그대로 씁니다.
+  if (nameEl) { nameEl.value = rec.name || ''; nameEl.disabled = true; }
+  if (phoneEl) { phoneEl.value = formatPhone(rec.phone) || ''; phoneEl.disabled = true; }
+  const last = calLastShipment_(rec);
+  if (prescEl) prescEl.value = last ? (last.prescription || '') : '';
+  if (totalEl) totalEl.value = last && last.totalPacks ? last.totalPacks : '';
+  if (seqEl) seqEl.value = last && last.packNum ? (last.packNum + 1) : '';
+}
+
+// 한약문진/다이어트문진 환자를 한 목록으로 합쳐 "이름 · 전화번호 · 한약/다이어트" 형태로 보여줍니다.
+// select의 value에는 "0:rowNum"(한약) / "1:rowNum"(다이어트)로 인코딩합니다.
+function calPatientOptions() {
+  const opts = [];
+  records.forEach(function (r) { opts.push({ value: '0:' + r.rowNum, label: (r.name || '(이름없음)') + ' · ' + (formatPhone(r.phone) || '') + ' · 한약' }); });
+  dietRecords.forEach(function (r) { opts.push({ value: '1:' + r.rowNum, label: (r.name || '(이름없음)') + ' · ' + (formatPhone(r.phone) || '') + ' · 다이어트' }); });
+  return opts;
+}
+
+// 문진표를 작성하지 않은 환자(내원만 하거나 예전부터 다니던 환자 등)도 처방 기록을 남길 수 있도록,
+// 이름/전화번호만으로 구글시트에 새 줄을 만들어 달라고 서버에 요청합니다. 이 요청만은 결과(새로
+// 만들어진 줄 번호)를 알아야 해서, 다른 저장 요청과 달리 mode:'no-cors'를 쓰지 않습니다. 대신
+// Content-Type을 text/plain으로 보내 브라우저의 사전 확인(preflight) 요청을 피합니다 - Code.gs는
+// 어차피 요청 내용을 그대로 JSON으로 해석하기 때문에 이렇게 보내도 문제없이 처리됩니다.
+function quickAddPatient_(name, phone, isDiet) {
+  const payload = { action: 'quick_add', key: adminKey, name: name, phone: phone };
+  if (isDiet) payload.formType = 'diet';
+  return fetch(GAS_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload)
+  })
+    .then(function (res) { return res.json(); })
+    .then(function (data) {
+      if (!data || data.status !== 'ok' || !data.rowNum) return null;
+      const rec = {
+        rowNum: data.rowNum, name: name, phone: formatPhone(phone), birthDate: '', gender: '',
+        submittedAt: new Date().toISOString(), doctorNotes: '', summary: '', raw: ''
+      };
+      if (isDiet) dietRecords.unshift(rec); else records.unshift(rec);
+      renderList();
+      return rec;
+    })
+    .catch(function () { return null; });
+}
+
+function calFindRec_(rowNum, isDiet) {
+  const list = isDiet ? dietRecords : records;
+  return list.find(function (r) { return r.rowNum === rowNum; });
+}
+
+// 처방 기록을 고쳐서(notes.shipments를 바꾼 뒤) 저장 서버에 반영하고, 화면(달력 + 현재 열려있는
+// 환자 상세화면 + 상단 배지)까지 한 번에 갱신합니다. 달력에서 하는 추가/수정/삭제/전화완료 토글이
+// 모두 이 함수를 거칩니다.
+function applyNotesToRecord_(rec, isDiet, notes) {
+  rec.doctorNotes = JSON.stringify(notes);
+  // 지금 그 환자의 상세화면이 열려 있는 상태라면, 화면에 보이는 doctorNotes/dietNotes도 함께
+  // 갱신해둬야 나중에 상세화면에서 "저장"을 눌렀을 때 방금 달력에서 바꾼 내용이 덮어써지지 않습니다.
+  if (!isDiet && editingRowNum === rec.rowNum) doctorNotes.shipments = notes.shipments;
+  if (isDiet && editingDietRowNum === rec.rowNum) dietNotes.shipments = notes.shipments;
+  const payload = { action: 'update', key: adminKey, rowNum: rec.rowNum, notes: rec.doctorNotes };
+  if (isDiet) payload.formType = 'diet';
+  fetch(GAS_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) }).catch(function () { /* 다음 새로고침에서 다시 시도 */ });
+  renderCalendar();
+  if (!isDiet && selectedIdx !== null && records[selectedIdx] && records[selectedIdx].rowNum === rec.rowNum) renderDetail(selectedIdx);
+  if (isDiet && selectedDietIdx !== null && dietRecords[selectedDietIdx] && dietRecords[selectedDietIdx].rowNum === rec.rowNum) renderDietDetail(selectedDietIdx);
+}
+
+// shipId로 처방 기록 하나를 찾아 mutateFn으로 고칩니다. mutateFn이 문자열 'delete'를 돌려주면
+// 그 기록을 통째로 지웁니다(전화완료 토글/수정/삭제가 모두 이 함수 하나로 처리됩니다).
+function calMutateShipment_(rowNum, isDiet, shipId, mutateFn) {
+  const rec = calFindRec_(rowNum, isDiet);
+  if (!rec) return;
+  let notes;
+  try { notes = rec.doctorNotes ? JSON.parse(rec.doctorNotes) : null; } catch (e) { notes = null; }
+  if (!notes || typeof notes !== 'object') notes = {};
+  if (!Array.isArray(notes.shipments)) notes.shipments = [];
+  const idx = notes.shipments.findIndex(function (s) { return s.id === shipId; });
+  if (idx === -1) return;
+  const result = mutateFn(notes.shipments[idx]);
+  if (result === 'delete') notes.shipments.splice(idx, 1);
+  applyNotesToRecord_(rec, isDiet, notes);
+}
+
+function calSetCallStatus(rowNum, isDiet, shipId, status) {
+  calMutateShipment_(rowNum, isDiet, shipId, function (s) {
+    applyCallStatus_(s, status);
+  });
+}
+
+function calDeleteShipment(rowNum, isDiet, shipId) {
+  if (!confirm('이 처방 기록을 삭제할까요?')) return;
+  calMutateShipment_(rowNum, isDiet, shipId, function () { return 'delete'; });
+}
+
+function calStartEdit(shipId) { calEditingShipId = shipId; renderCalendar(); }
+function calCancelEdit() { calEditingShipId = null; renderCalendar(); }
+
+function calSaveEdit(rowNum, isDiet, shipId) {
+  const d = (document.getElementById('cal-edit-date').value || '').trim();
+  if (!d) { alert('처방 날짜를 선택해주세요.'); return; }
+  const prescription = (document.getElementById('cal-edit-presc').value || '').trim();
+  const totalV = document.getElementById('cal-edit-total').value;
+  const seqV = document.getElementById('cal-edit-seq').value;
+  const memo = (document.getElementById('cal-edit-memo').value || '').trim();
+  calEditingShipId = null;
+  calMutateShipment_(rowNum, isDiet, shipId, function (s) {
+    s.date = d;
+    s.prescription = prescription;
+    s.totalPacks = totalV ? parseInt(totalV, 10) : null;
+    s.packNum = seqV ? parseInt(seqV, 10) : null;
+    s.memo = memo;
+  });
+}
+
+function calAddShipmentTo_(rec, isDiet) {
+  const d = (document.getElementById('cal-add-date').value || '').trim();
+  if (!d) { alert('처방 날짜를 선택해주세요.'); return; }
+  const prescription = (document.getElementById('cal-add-presc').value || '').trim();
+  const totalV = document.getElementById('cal-add-total').value;
+  const seqV = document.getElementById('cal-add-seq').value;
+  const memo = (document.getElementById('cal-add-memo').value || '').trim();
+
+  let notes;
+  try { notes = rec.doctorNotes ? JSON.parse(rec.doctorNotes) : null; } catch (e) { notes = null; }
+  if (!notes || typeof notes !== 'object') notes = {};
+  if (!Array.isArray(notes.shipments)) notes.shipments = [];
+  notes.shipments.push({
+    id: Date.now(),
+    date: d,
+    prescription: prescription,
+    totalPacks: totalV ? parseInt(totalV, 10) : null,
+    packNum: seqV ? parseInt(seqV, 10) : null,
+    memo: memo,
+    called: false
+  });
+  applyNotesToRecord_(rec, isDiet, notes);
+}
+
+function calAddShipment() {
+  const sel = document.getElementById('cal-add-patient');
+  if (!sel || !sel.value) { alert('환자를 선택해주세요.'); return; }
+
+  if (sel.value === 'manual') {
+    const name = (document.getElementById('cal-add-manual-name').value || '').trim();
+    if (!name) { alert('환자 이름을 입력해주세요.'); return; }
+    const phone = (document.getElementById('cal-add-manual-phone').value || '').trim();
+    const isDiet = document.querySelector('input[name="cal-add-manual-form"]:checked').value === 'diet';
+    const btn = document.getElementById('cal-add-btn');
+    if (btn) { btn.disabled = true; btn.textContent = '환자 등록 중...'; }
+    quickAddPatient_(name, phone, isDiet).then(function (rec) {
+      if (!rec) {
+        alert('환자 등록에 실패했습니다. 네트워크를 확인하고 다시 시도해주세요.');
+        if (btn) { btn.disabled = false; btn.textContent = '+ 이 날짜로 처방 기록 추가'; }
+        return;
+      }
+      calAddShipmentTo_(rec, isDiet);
+    });
+    return;
+  }
+
+  const parts = sel.value.split(':');
+  const isDiet = parts[0] === '1';
+  const rowNum = parseInt(parts[1], 10);
+  const rec = calFindRec_(rowNum, isDiet);
+  if (!rec) return;
+  calAddShipmentTo_(rec, isDiet);
+}
+
+function jumpToPatient(rowNum, isDiet) {
+  closeCalendar();
+  switchForm(isDiet ? 'diet' : 'herbal');
+  const list = isDiet ? dietRecords : records;
+  const idx = list.findIndex(function (r) { return r.rowNum === rowNum; });
+  if (idx === -1) return;
+  if (isDiet) renderDietDetail(idx); else renderDetail(idx);
+}
+
+// ===== 진료 방식(직접 내원 / 전화 비대면) =====
+// 원장님이 상세 화면에서 표시. measurements와 마찬가지로 별도 시트 칸 없이 dietNotes 안에
+// visitType('clinic' | 'phone')으로 저장되어, 목록에도 배지로 표시됩니다.
+function dietVisitTypeOf(r) {
+  if (r.rowNum === editingDietRowNum && dietNotes) return dietNotes.visitType || '';
+  try { const n = r.doctorNotes ? JSON.parse(r.doctorNotes) : null; return (n && n.visitType) || ''; } catch (e) { return ''; }
+}
+
+function visitTagHtml(vt) {
+  if (vt === 'clinic') return '<span class="visit-tag clinic">내원</span>';
+  if (vt === 'phone') return '<span class="visit-tag phone">비대면</span>';
+  return '';
+}
+
+function renderVisitTypeField(rowNum) {
+  const vt = dietNotes.visitType || '';
+  return '<div class="field">진료 방식' +
+    '<b class="vt-toggle">' +
+      '<button type="button" class="vt-btn' + (vt === 'clinic' ? ' on' : '') + '" onclick="setVisitType(\'clinic\',' + rowNum + ')">직접 내원</button>' +
+      '<button type="button" class="vt-btn phone' + (vt === 'phone' ? ' on' : '') + '" onclick="setVisitType(\'phone\',' + rowNum + ')">전화 비대면</button>' +
+    '</b></div>';
+}
+
+function setVisitType(v, rowNum) {
+  dietNotes.visitType = (dietNotes.visitType === v) ? '' : v;
+  saveDietAll(rowNum);
+  renderDietDetail(selectedDietIdx);
+}
+
+// ===== 다이어트문진 상세 (한약 문진과 질문/항목이 완전히 달라 별도 렌더링) =====
+// r.raw(문진 당시 저장된 답변 JSON)가 있으면 한약 문진처럼 라디오/체크박스로 그려서
+// 체크 안 된 항목도 같이 보여주고 원장님이 바로 고칠 수 있게 합니다. raw가 없거나 손상된
+// 옛 기록은 예전처럼 summary 텍스트(답한 것만 표시)로 읽기 전용 보여줍니다.
+function renderDietDetail(i) {
+  selectedDietIdx = i;
+  renderList();
+  const r = dietRecords[i];
+
+  let editableDietAnswers = null;
+  try { editableDietAnswers = r.raw ? JSON.parse(r.raw) : null; } catch (e) { editableDietAnswers = null; }
+
+  // 환자를 새로 열었을 때만 원본 값으로 초기화합니다 (상담메모 작성 중 내용이 지워지지 않도록).
+  if (editingDietRowNum !== r.rowNum) {
+    dietAnswers = editableDietAnswers || {};
+    let parsedNotes = null;
+    try { parsedNotes = r.doctorNotes ? JSON.parse(r.doctorNotes) : null; } catch (e) { parsedNotes = null; }
+    dietNotes = (parsedNotes && typeof parsedNotes === 'object') ? Object.assign({ memo: '' }, parsedNotes) : { memo: '' };
+    if (!Array.isArray(dietNotes.measurements)) dietNotes.measurements = [];
+    if (!Array.isArray(dietNotes.shipments)) dietNotes.shipments = [];
+    editedVitals = { height: r.height || '', weight: r.weight || '', goal: r.goal || '' };
+    selectedGender = r.gender || null;
+    isChildPatient = isChildAge(r.birthDate);
+    editingDietRowNum = r.rowNum;
+  }
+  hasEditableDietAnswers = !!editableDietAnswers;
+
+  let h = '';
+  h += `<div class="patient-card">
+    <div class="name">${esc(r.name || '(이름없음)')}${r.gender ? `<span class="gender-tag ${genderClass(r.gender)}">${esc(r.gender)}</span>` : ''}${childTagHtml(r)}</div>
+    <div class="field">전화번호<b>${esc(r.phone || '-')}</b></div>
+    <div class="field">생년월일<b>${esc(r.birthDate || '-')}</b></div>
+    <div class="field">희망개월수<b>${esc(r.plan || '-')}</b></div>
+    ${renderVisitTypeField(r.rowNum)}
+    <div class="field">주소<b>${esc(r.address || '-')}</b></div>
+    <div class="field">키 / 몸무게 / 감량목표 <span class="vital-hint">(수정 가능 · 감량목표 = 빼고 싶은 무게)</span>
+      <b class="vital-edit"><input type="number" step="0.1" class="vital-input" value="${esc(editedVitals.height)}" oninput="updateVital('height', this.value)"> cm /
+      <input type="number" step="0.1" class="vital-input" value="${esc(editedVitals.weight)}" oninput="updateVital('weight', this.value)"> kg / 감량
+      <input type="number" step="0.1" class="vital-input" value="${esc(editedVitals.goal)}" oninput="updateVital('goal', this.value)"> kg<span class="vital-hint" id="goal-target">${goalTargetText()}</span></b>
+    </div>
+    <div class="field">제출일시<b>${r.submittedAt ? new Date(r.submittedAt).toLocaleString('ko-KR') : '-'}</b></div>
+  </div>`;
+
+  h += `<div class="bmi-section">
+    <h3>체형 분석 (BMI 자동 계산)</h3>
+    <div id="bmi-body">${renderBMIBody()}</div>
+  </div>`;
+
+  h += renderBodyCompSection(r);
+
+  if (hasEditableDietAnswers) {
+    const cats = buildDietEditableCats();
+    h += `<div class="cat-grid">`;
+    cats.forEach(cat => {
+      h += `<div class="cat-card"><div class="cat-hdr">${esc(cat.name)}</div><div class="cat-body">${cat.rows.join('')}</div></div>`;
+    });
+    h += `</div>`;
+  } else {
+    const cats = moveCatToFront(parseSummary(r.summary), '체크리스트');
+    h += `<div class="cat-grid">`;
+    cats.forEach(cat => {
+      h += `<div class="cat-card"><div class="cat-hdr">${esc(cat.name)}</div><div class="cat-body">`;
+      cat.rows.forEach(row => {
+        h += `<div class="qa-row"><span class="q">${esc(row.q)}</span><br><span class="a">${esc(row.a)}</span></div>`;
+      });
+      h += `</div></div>`;
+    });
+    h += `</div>`;
+  }
+
+  h += `<div class="raw-toggle" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display==='block' ? 'none' : 'block'">원본 데이터 보기(백업용)</div>`;
+  h += `<div class="raw-box">${esc(r.raw || '')}</div>`;
+
+  let side = '';
+  side += `<div class="save-bar top">
+    <button onclick="saveWithPendingShipment(${r.rowNum}, true)">💾 저장</button>
+    <span class="save-status" id="save-status"></span>
+  </div>`;
+  side += `<div class="side-box memo">
+    <div class="side-box-hdr"><h3>📝 상담메모</h3><button class="side-btn ghost" onclick="toggleBig('diet-memo-note', this)">크게보기</button></div>
+    <textarea class="memo-textarea" id="diet-memo-note" oninput="dietNotes.memo=this.value" placeholder="상담 중 원장님 의견을 적어주세요...">${esc(dietNotes.memo || '')}</textarea>
+  </div>`;
+  side += renderDietAiBox(r);
+  side += renderShipmentBox(r.rowNum, true);
+  side += `<div class="save-bar">
+    <button onclick="saveWithPendingShipment(${r.rowNum}, true)">💾 저장</button>
+    <span class="save-status"></span>
+  </div>`;
+
+  document.getElementById('detail').innerHTML =
+    `<div class="two-col"><div class="col-main">${h}</div><div class="col-side">${side}</div></div>`;
+  enterMobileDetail();
+}
+
+// ===== 다이어트문진 AI 분석 (원장님용) =====
+// 신상(나이·성별·키·몸무게·감량목표)·문진 답변·체성분 기록·상담메모를 AI에 보내 현재 상태 / 문제점 /
+// 관리 방향을 정리받습니다. 이름·전화번호·주소는 보내지 않습니다.
+// 결과는 서버(구글시트 N열)에도 저장되어, 환자를 다시 열면 그대로 보입니다.
+function buildDietPatientDataForAi(r) {
+  const lines = [];
+  let age = '미기재';
+  if (/^\d{4}/.test(r.birthDate || '')) age = (new Date().getFullYear() - parseInt(r.birthDate.slice(0, 4), 10)) + '세';
+  const bmi = calcBMI(editedVitals.height, editedVitals.weight);
+  lines.push('[신상·체형]');
+  lines.push(`나이: ${age} / 성별: ${r.gender || '미기재'}`);
+  lines.push(`키: ${editedVitals.height || '미기재'}cm / 몸무게: ${editedVitals.weight || '미기재'}kg / BMI: ${bmi ? bmi.toFixed(1) : '계산 불가'}`);
+  lines.push(`최종 감량 희망: ${editedVitals.goal ? editedVitals.goal + 'kg' : '미기재'} / 첫 처방 개월수(우선 진행 기간, 연장 가능): ${r.plan || '미기재'}`);
+  const ms = collectDietPatientMeasurements(r);
+  if (ms.length) {
+    lines.push('');
+    lines.push('[체성분 측정 기록 (날짜: 체중 / 골격근량 / 체지방량)]');
+    ms.forEach(m => lines.push(`${m.d}: ${m.w != null ? m.w + 'kg' : '-'} / ${m.smm != null ? m.smm + 'kg' : '-'} / ${m.bf != null ? m.bf + 'kg' : '-'}${m.src === 'self' ? ' (환자 자가측정)' : ''}`));
+  }
+  lines.push('');
+  lines.push('[다이어트 문진 답변]');
+  lines.push((hasEditableDietAnswers ? buildDietSummary(dietAnswers) : r.summary) || '(답변 없음)');
+  lines.push('');
+  lines.push('[원장 상담메모]');
+  lines.push(dietNotes.memo || '(없음)');
+  return lines.join('\n');
+}
+
+function runDietAiAnalyze(rowNum) {
+  const status = document.getElementById('diet-ai-status');
+  const resultEl = document.getElementById('diet-ai-result');
+  const btn = document.getElementById('diet-ai-run-btn');
+  if (btn) btn.disabled = true;
+  if (status) { status.textContent = 'AI가 분석 중입니다... (10~20초 정도 걸릴 수 있어요)'; status.className = 'ai-status'; }
+  if (resultEl) resultEl.innerHTML = '';
+
+  const r = dietRecords[selectedDietIdx];
+  const payload = { action: 'diet_ai_analyze', key: adminKey, rowNum: rowNum, patientData: buildDietPatientDataForAi(r) };
+
+  fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) })
+    .then(res => res.json())
+    .then(data => {
+      if (btn) btn.disabled = false;
+      if (!data || data.status !== 'ok') {
+        if (status) { status.textContent = (data && data.message) || 'AI 분석에 실패했습니다.'; status.className = 'ai-status err'; }
+        return;
+      }
+      if (r && r.rowNum === rowNum) r.aiResult = JSON.stringify(data.result); // 구글시트에도 이미 저장됨 - 화면에서도 바로 반영
+      if (status) status.textContent = '';
+      if (resultEl) resultEl.innerHTML = renderDietAiResult(data.result);
+      if (btn) btn.textContent = '🤖 AI 다이어트 분석 다시 실행';
+    })
+    .catch(() => {
+      if (btn) btn.disabled = false;
+      if (status) { status.textContent = '서버에 연결하지 못했습니다. 네트워크를 확인해주세요.'; status.className = 'ai-status err'; }
+    });
+}
+
+function renderDietAiResult(a) {
+  const arr = v => Array.isArray(v) ? v.filter(Boolean) : [];
+  let h = '';
+  if (a.current_status) h += `<div class="dai-sec"><h4>📍 현재 상태</h4><div class="dai-status">${esc(a.current_status)}</div></div>`;
+  const problems = arr(a.problems);
+  if (problems.length) {
+    h += `<div class="dai-sec"><h4>⚠️ 문제점</h4>`;
+    problems.forEach(p => {
+      h += `<div class="dai-item prob"><b>${esc(p.title || '')}</b>${p.detail ? `<div>${esc(p.detail)}</div>` : ''}${p.evidence ? `<div class="dai-ev">근거: ${esc(p.evidence)}</div>` : ''}</div>`;
+    });
+    h += `</div>`;
+  }
+  const solutions = arr(a.solutions);
+  if (solutions.length) {
+    h += `<div class="dai-sec"><h4>✅ 관리 방향</h4>`;
+    solutions.forEach(p => { h += `<div class="dai-item sol"><b>${esc(p.title || '')}</b>${p.detail ? `<div>${esc(p.detail)}</div>` : ''}</div>`; });
+    h += `</div>`;
+  }
+  const safety = arr(a.safety_checks);
+  if (safety.length) h += `<div class="dai-sec"><h4>🛑 처방 전 안전 확인</h4><ul class="dai-safety">${safety.map(c => `<li>${esc(c)}</li>`).join('')}</ul></div>`;
+  const qs = arr(a.questions_to_ask);
+  if (qs.length) {
+    const qLines = qs.map(q => {
+      const questionText = typeof q === 'string' ? q : (q.question || '');
+      const reasonText = typeof q === 'object' && q.reason ? q.reason : '';
+      return `<li>${esc(questionText)}${reasonText ? `<div class="ai-q-reason">${esc(reasonText)}</div>` : ''}</li>`;
+    }).join('');
+    h += `<div class="ai-questions"><h4>상담 때 추가로 확인하면 좋은 질문</h4><ul>${qLines}</ul></div>`;
+  }
+  return h;
+}
+
+function renderDietAiBox(r) {
+  let saved = null;
+  try { saved = r.aiResult ? JSON.parse(r.aiResult) : null; } catch (e) { saved = null; }
+  return `<div class="side-box ai">
+    <div class="side-box-hdr"><h3>✨ AI 다이어트 분석</h3></div>
+    <button class="ai-run-btn" id="diet-ai-run-btn" onclick="runDietAiAnalyze(${r.rowNum})">🤖 ${saved ? 'AI 다이어트 분석 다시 실행' : 'AI 다이어트 분석 실행'}</button>
+    <div class="ai-note">신상·문진 답변·체성분 기록·상담메모를 바탕으로 현재 상태, 문제점, 관리 방향을 정리합니다. 참고자료이며 최종 판단은 원장님이 직접 해주세요.</div>
+    <div class="ai-status" id="diet-ai-status"></div>
+    <div id="diet-ai-result">${saved ? renderDietAiResult(saved) : ''}</div>
+  </div>`;
+}
+
+function saveDietAll(rowNum) {
+  setSaveStatus('저장 중...', '');
+  const payload = {
+    action: 'update',
+    key: adminKey,
+    rowNum: rowNum,
+    formType: 'diet',
+    notes: JSON.stringify(dietNotes),
+    height: editedVitals.height,
+    weight: editedVitals.weight,
+    goal: editedVitals.goal
+  };
+  if (hasEditableDietAnswers) {
+    payload.raw = JSON.stringify(dietAnswers);
+    payload.summary = buildDietSummary(dietAnswers);
+  }
+  fetch(GAS_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
+    .then(() => {
+      const r = dietRecords[selectedDietIdx];
+      if (r) {
+        r.doctorNotes = payload.notes;
+        r.height = payload.height;
+        r.weight = payload.weight;
+        if (hasEditableDietAnswers) { r.raw = payload.raw; r.summary = payload.summary; }
+        r.goal = payload.goal;
+      }
+      setSaveStatus('저장되었습니다 (' + new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) + ')', 'ok');
+    })
+    .catch(() => {
+      setSaveStatus('저장 실패 - 네트워크를 확인해주세요.', 'err');
+    });
+}
+</script>
+</body>
+</html>

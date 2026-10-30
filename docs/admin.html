@@ -456,9 +456,9 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-seri
     <div class="sidebar">
       <div class="sidebar-hdr">
         <div class="form-tabs">
-          <div class="form-tab herbal active" id="tab-herbal" onclick="switchForm('herbal')">🌿 한약</div>
+          <div class="form-tab skin active" id="tab-skin" onclick="switchForm('skin')">💆 피부</div>
           <div class="form-tab diet" id="tab-diet" onclick="switchForm('diet')">🥗 다이어트</div>
-          <div class="form-tab skin" id="tab-skin" onclick="switchForm('skin')">💆 피부</div>
+          <div class="form-tab herbal" id="tab-herbal" onclick="switchForm('herbal')">🌿 한약</div>
         </div>
         <input type="text" id="search" placeholder="이름 또는 전화번호 검색" oninput="renderList()">
       </div>
@@ -521,7 +521,7 @@ let records = [];
 let selectedIdx = null;
 
 // 한약문진 / 다이어트문진 탭 전환용. 두 탭의 목록·선택 상태는 서로 독립적으로 유지합니다.
-let activeForm = 'herbal'; // 'herbal' | 'diet' | 'skin'
+let activeForm = 'skin'; // 'skin' | 'diet' | 'herbal' (첫 화면과 같은 순서이며, 맨 앞의 피부 탭이 기본으로 열립니다)
 let dietRecords = [];
 let selectedDietIdx = null;
 let dietNotes = { memo: '' };

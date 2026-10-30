@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>빼빼한의원 사전문진 QR코드</title>
+<style>
+  /* A4 인쇄용 안내문. 흰 종이에 잉크를 아끼도록 배경은 비우고 선과 글자 위주로 구성합니다. */
+  @page { size: 210mm 297mm; margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 210mm;
+    height: 297mm;
+    background: #ffffff;
+    font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+    color: #1e2233;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .page {
+    width: 210mm;
+    height: 297mm;
+    padding: 12mm;
+  }
+  .card {
+    width: 100%;
+    height: 100%;
+    border: 0.6mm solid #d5dbd8;
+    border-radius: 9mm;
+    padding: 15mm 18mm 11mm;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .logo { height: 21mm; width: auto; margin-bottom: 9mm; }
+  h1 { font-size: 11.6mm; line-height: 1.32; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 4mm; }
+  h1 .accent { color: #137a45; }
+  .desc { font-size: 5mm; line-height: 1.55; color: #5b6172; margin-bottom: 9mm; }
+  .qr-wrap { position: relative; width: 92mm; height: 92mm; display: flex; align-items: center; justify-content: center; border: 0.3mm solid #d5dbd8; border-radius: 5mm; margin-bottom: 9mm; }
+  .qr-wrap img { width: 74mm; height: 74mm; display: block; }
+  .corner { position: absolute; width: 10mm; height: 10mm; border: 1.1mm solid #137a45; }
+  .corner.tl { top: -0.8mm; left: -0.8mm; border-right: none; border-bottom: none; border-radius: 4mm 0 0 0; }
+  .corner.tr { top: -0.8mm; right: -0.8mm; border-left: none; border-bottom: none; border-radius: 0 4mm 0 0; }
+  .corner.bl { bottom: -0.8mm; left: -0.8mm; border-right: none; border-top: none; border-radius: 0 0 0 4mm; }
+  .corner.br { bottom: -0.8mm; right: -0.8mm; border-left: none; border-top: none; border-radius: 0 0 4mm 0; }
+  .steps { width: 100%; border: 0.3mm solid #d5dbd8; border-radius: 6mm; padding: 6.5mm 8mm; text-align: left; margin-bottom: 7mm; }
+  .step { display: flex; gap: 4mm; font-size: 5mm; line-height: 1.5; }
+  .step + .step { margin-top: 3mm; }
+  .step .num { color: #137a45; font-weight: 800; flex-shrink: 0; }
+  .url { font-family: Consolas, monospace; font-size: 4.1mm; color: #454b5f; border: 0.3mm solid #d5dbd8; border-radius: 99mm; padding: 2.4mm 8mm; margin-bottom: 5mm; }
+  .footer { font-size: 3.9mm; color: #757c92; }
+</style>
+</head>
+<body>
+  <div class="page">
+    <div class="card">
+      <img class="logo" src="../docs/assets/bbae-logo.png" alt="빼빼한의원">
+      <h1>휴대폰 카메라로<br><span class="accent">QR코드</span>를 스캔해주세요</h1>
+      <p class="desc">다이어트 · 한약 · 피부미용 문진으로 바로 연결됩니다.</p>
+      <div class="qr-wrap">
+        <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+        <img src="../docs/assets/questionnaire-qr.png" alt="문진표 QR코드">
+      </div>
+      <div class="steps">
+        <div class="step"><span class="num">1</span><span>카메라 앱을 열고 QR코드를 비춰주세요.</span></div>
+        <div class="step"><span class="num">2</span><span>화면에 뜨는 알림을 눌러 받으실 문진을 선택합니다.</span></div>
+        <div class="step"><span class="num">3</span><span>안내에 따라 답변을 마치면 접수가 완료됩니다.</span></div>
+      </div>
+      <div class="url">365picnic.github.io/bbae-questionnaire</div>
+      <p class="footer">작성하신 내용은 상담과 진료 목적으로만 사용됩니다.</p>
+    </div>
+  </div>
+</body>
+</html>

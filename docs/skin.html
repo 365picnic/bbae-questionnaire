@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>빼빼한의원 피부미용 문진</title>
+<style>
+:root {
+  /* 피부 문진 전용 팔레트 - 빼빼한의원 로고의 초록색 + 피부미용 탭과 같은 로즈 포인트 */
+  --brand-1: #137a45;
+  --brand-2: #1aaa5f;
+  --brand-soft: #e8f6ee;
+  --rose: #c43d73;
+  --rose-2: #e0719c;
+  --rose-soft: #fcecf3;
+  --ink-900: #1e2233;
+  --ink-700: #454b5f;
+  --ink-500: #757c92;
+  --ink-300: #aeb3c4;
+  --line: #e4e6f0;
+  --line-soft: #eef0f7;
+  --bg: #f6f5f8;
+  --surface: #ffffff;
+  --danger: #d64559;
+  --danger-soft: #fdeef0;
+  --success: #1f9d63;
+  --shadow-sm: 0 1px 3px rgba(24, 28, 56, 0.05);
+  --shadow-md: 0 10px 28px rgba(28, 32, 64, 0.08);
+  --shadow-lg: 0 18px 44px rgba(28, 32, 64, 0.14);
+  --radius-lg: 18px;
+  --radius-md: 14px;
+  --radius-sm: 10px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-serif; background: var(--bg); color: var(--ink-900); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+.container { max-width: 600px; margin: 0 auto; background: var(--surface); min-height: 100vh; padding: 24px; box-shadow: var(--shadow-lg); }
+.header { text-align: center; padding: 20px 0; margin-bottom: 22px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); }
+.header .sub { color: var(--ink-500); font-size: 12.5px; margin-top: 6px; }
+.header .logo-img { height: 36px; width: auto; }
+.header .logo-img.sm { height: 26px; }
+.header.slim { padding: 10px 0; }
+.progress-bar { width: 100%; height: 6px; background: var(--line-soft); border-radius: 4px; margin-bottom: 8px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--rose), var(--rose-2)); border-radius: 4px; transition: width 0.4s ease; }
+.progress-text { text-align: right; font-size: 11.5px; color: var(--ink-300); margin-bottom: 18px; }
+.step-info { font-size: 13.5px; color: var(--ink-500); margin-bottom: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; }
+.step-info .cat { background: var(--rose-soft); color: var(--rose); padding: 4px 14px; border-radius: 20px; font-size: 12.5px; font-weight: 700; }
+.step-info .num { color: var(--ink-300); font-size: 12.5px; }
+
+.intro { background: var(--rose-soft); border-radius: var(--radius-md); padding: 16px 18px; margin-bottom: 20px; font-size: 13.5px; line-height: 1.65; color: var(--ink-700); }
+.intro b { color: var(--rose); }
+
+.form-group { margin-bottom: 18px; }
+.form-group label { display: block; font-weight: 700; font-size: 13.5px; margin-bottom: 8px; color: var(--ink-700); }
+.form-group .hint { display: block; font-weight: 400; font-size: 11.5px; color: var(--ink-500); margin-top: -4px; margin-bottom: 8px; }
+.form-group input { width: 100%; padding: 13px 14px; border: 1.5px solid var(--line); border-radius: var(--radius-md); font-size: 16px; background: var(--surface); font-family: inherit; }
+.form-group input:focus { outline: none; border-color: var(--rose); box-shadow: 0 0 0 3px rgba(196,61,115,0.12); }
+.form-group input::placeholder { color: var(--ink-300); }
+.birth-row { display: flex; gap: 8px; }
+.birth-row select { flex: 1; min-width: 0; padding: 13px 6px; border: 1.5px solid var(--line); border-radius: var(--radius-md); font-size: 15px; background: var(--surface); color: var(--ink-900); }
+.gender-btns { display: flex; gap: 10px; }
+.gender-btn { flex: 1; padding: 13px; text-align: center; border: 1.5px solid var(--line); border-radius: var(--radius-md); font-size: 15px; cursor: pointer; font-weight: 600; color: var(--ink-700); }
+.gender-btn.selected { background: linear-gradient(135deg, var(--rose), var(--rose-2)); color: #fff; border-color: transparent; }
+.consent-box { border: 1.5px solid var(--line); border-radius: var(--radius-md); padding: 13px 14px; margin-bottom: 8px; }
+.consent-row { display: flex; align-items: center; gap: 10px; }
+.consent-row input[type="checkbox"] { width: 19px; height: 19px; accent-color: var(--rose); flex-shrink: 0; }
+.consent-row label { font-size: 13.5px; font-weight: 600; flex: 1; color: var(--ink-700); }
+.consent-text { font-size: 11.5px; color: var(--ink-500); line-height: 1.6; margin-top: 8px; }
+
+.question-title { font-size: 19px; font-weight: 700; margin-bottom: 8px; line-height: 1.5; color: var(--ink-900); letter-spacing: -0.01em; }
+.question-title .req { color: var(--rose); margin-left: 3px; }
+.question-hint { font-size: 12.5px; color: var(--ink-500); margin-bottom: 16px; line-height: 1.5; }
+.multi-note { font-size: 12px; color: var(--rose); font-weight: 600; margin-bottom: 12px; }
+.opt { padding: 14px 18px; border: 1.5px solid var(--line); border-radius: var(--radius-md); font-size: 14.5px; cursor: pointer; background: var(--surface); line-height: 1.5; margin-bottom: 9px; color: var(--ink-700); }
+.opt.sel { background: linear-gradient(135deg, var(--rose), var(--rose-2)); color: #fff; border-color: transparent; box-shadow: var(--shadow-md); font-weight: 600; }
+#text-answer { width: 100%; min-height: 120px; padding: 12px; border: 1.5px solid var(--line); border-radius: var(--radius-sm); font-size: 15px; resize: vertical; overflow: hidden; line-height: 1.6; font-family: inherit; }
+#text-answer:focus { outline: none; border-color: var(--rose); }
+
+.nav-btns { display: flex; gap: 12px; margin-top: 26px; padding-bottom: 24px; }
+.nav-btn { flex: 1; padding: 15px; text-align: center; font-size: 15px; font-weight: 700; cursor: pointer; border: none; border-radius: var(--radius-md); }
+.nav-btn.prev { background: var(--line-soft); color: var(--ink-500); }
+.nav-btn.next { background: linear-gradient(135deg, var(--rose), var(--rose-2)); color: #fff; box-shadow: var(--shadow-md); }
+.nav-btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+
+.complete-page { text-align: center; padding: 60px 20px; }
+.complete-page .icon { font-size: 58px; margin-bottom: 20px; color: var(--success); }
+.complete-page h2 { font-size: 21px; margin-bottom: 12px; color: var(--ink-900); font-weight: 700; }
+.complete-page p { color: var(--ink-500); font-size: 14.5px; line-height: 1.7; }
+.complete-page.error .icon { color: var(--danger); }
+
+.start-btn { width: 100%; padding: 16px; background: linear-gradient(135deg, var(--rose), var(--rose-2)); color: #fff; border: none; border-radius: var(--radius-md); font-size: 17px; font-weight: 700; cursor: pointer; margin-top: 14px; box-shadow: var(--shadow-md); }
+</style>
+</head>
+<body>
+<div class="container" id="app">
+    <div id="phase-login">
+        <div class="header">
+            <img class="logo-img" src="assets/bbae-logo.png" alt="빼빼한의원">
+            <div class="sub">피부미용 사전문진</div>
+        </div>
+        <div class="intro">
+            피부 상태와 시술 이력을 미리 알려주시면 <b>더 정확한 상담</b>을 받으실 수 있습니다.<br>
+            건강 관련 문항은 안전한 시술을 위해 꼭 필요하니 빠짐없이 답해주세요.
+        </div>
+        <div class="form-group">
+            <label>성함</label>
+            <input type="text" id="inp-name" placeholder="이름을 입력해주세요">
+        </div>
+        <div class="form-group">
+            <label>성별</label>
+            <div class="gender-btns">
+                <div class="gender-btn" onclick="selectGender(this,'남자')">남자</div>
+                <div class="gender-btn" onclick="selectGender(this,'여자')">여자</div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>연락처</label>
+            <input type="tel" id="inp-phone" placeholder="01012345678">
+        </div>
+        <div class="form-group">
+            <label>생년월일</label>
+            <span class="hint">생년월일은 동명이인과의 구별을 확인하는 용도입니다.</span>
+            <div class="birth-row">
+                <select id="inp-birth-y"><option value="">년도</option></select>
+                <select id="inp-birth-m"><option value="">월</option></select>
+                <select id="inp-birth-d"><option value="">일</option></select>
+            </div>
+        </div>
+        <div class="consent-box">
+            <div class="consent-row">
+                <input type="checkbox" id="consent1">
+                <label for="consent1">개인정보·건강정보 수집 및 이용 동의 (필수)</label>
+            </div>
+            <div class="consent-text">수집 항목: 이름, 성별, 연락처, 생년월일, 피부·건강 상태, 시술 이력 / 이용 목적: 상담 및 시술 안전 확인</div>
+        </div>
+        <button class="start-btn" onclick="startQuestionnaire()">문진 시작하기</button>
+    </div>
+
+    <div id="phase-questions" style="display:none">
+        <div class="header slim">
+            <img class="logo-img sm" src="assets/bbae-logo.png" alt="빼빼한의원">
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        <div class="progress-text" id="progress-text">진행률 0%</div>
+        <div id="question-area"></div>
+        <div class="nav-btns">
+            <button class="nav-btn prev" id="btn-prev" onclick="prevQuestion()">이전</button>
+            <button class="nav-btn next" id="btn-next" onclick="nextQuestion()">다음</button>
+        </div>
+    </div>
+
+    <div id="phase-complete" style="display:none">
+        <div class="header"><img class="logo-img" src="assets/bbae-logo.png" alt="빼빼한의원"></div>
+        <div class="complete-page" id="complete-box"></div>
+    </div>
+</div>
+
+<script src="questions-skin.js"></script>
+<script>
+// docs/diet.html, herbal.html 과 같은 구글 앱스스크립트 주소를 사용합니다.
+const GAS_URL = "https://script.google.com/macros/s/AKfycbyirQpWwVxqynWl31MZTTDNKCdSqQYqZgUgOKEWILaFV_bFuBoDLGdj_144ajtnGd-dbQ/exec";
+
+let selectedGender = null;
+let currentStep = 0;
+let answers = {};
+let patientInfo = {};
+
+(function populateBirthSelects() {
+    const ySel = document.getElementById('inp-birth-y');
+    const mSel = document.getElementById('inp-birth-m');
+    const dSel = document.getElementById('inp-birth-d');
+    const thisYear = new Date().getFullYear();
+    for (let y = thisYear; y >= thisYear - 100; y--) {
+        ySel.insertAdjacentHTML('beforeend', `<option value="${y}">${y}년</option>`);
+    }
+    for (let m = 1; m <= 12; m++) {
+        mSel.insertAdjacentHTML('beforeend', `<option value="${m}">${m}월</option>`);
+    }
+    for (let d = 1; d <= 31; d++) {
+        dSel.insertAdjacentHTML('beforeend', `<option value="${d}">${d}일</option>`);
+    }
+})();
+
+function selectGender(el, g) {
+    selectedGender = g;
+    document.querySelectorAll('.gender-btn').forEach(b => b.classList.remove('selected'));
+    el.classList.add('selected');
+}
+
+function startQuestionnaire() {
+    const name = document.getElementById('inp-name').value.trim();
+    const phone = document.getElementById('inp-phone').value.trim();
+    const birthY = document.getElementById('inp-birth-y').value;
+    const birthM = document.getElementById('inp-birth-m').value;
+    const birthD = document.getElementById('inp-birth-d').value;
+    if (!name) { alert('성함을 입력해주세요.'); return; }
+    if (!selectedGender) { alert('성별을 선택해주세요.'); return; }
+    if (!phone) { alert('연락처를 입력해주세요.'); return; }
+    if (!(birthY && birthM && birthD)) { alert('생년월일을 년/월/일 모두 선택해주세요.'); return; }
+    if (!document.getElementById('consent1').checked) { alert('개인정보·건강정보 수집 동의가 필요합니다.'); return; }
+    patientInfo = {
+        name: name,
+        gender: selectedGender,
+        phone: phone,
+        birth_date: `${birthY}-${String(birthM).padStart(2, '0')}-${String(birthD).padStart(2, '0')}`
+    };
+    document.getElementById('phase-login').style.display = 'none';
+    document.getElementById('phase-questions').style.display = 'block';
+    currentStep = 0;
+    render();
+    window.scrollTo(0, 0);
+}
+
+function htmlEsc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function isSelected(q, opt) {
+    if (q.type === 'single') return answers[q.id] === opt;
+    return (answers[q.id] || []).includes(opt);
+}
+
+function render() {
+    const list = visibleSkinQ(answers);
+    const total = list.length;
+    const q = list[currentStep];
+    const pct = Math.round((currentStep / total) * 100);
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('progress-text').textContent = '진행률 ' + pct + '%';
+
+    let h = `<div class="step-info"><span class="cat">${q.cat}</span> <span class="num">${currentStep + 1} / ${total}</span></div>`;
+    h += `<div class="question-title">${q.title}${q.required ? '<span class="req">*</span>' : ''}</div>`;
+    if (q.hint) h += `<div class="question-hint">${q.hint}</div>`;
+
+    if (q.type === 'text') {
+        h += `<textarea id="text-answer" maxlength="2000" oninput="autoGrow(this)" placeholder="답변을 입력해주세요 (최대 2000자)">${htmlEsc(answers[q.id] || '')}</textarea>`;
+    } else {
+        if (q.type === 'multi') h += `<div class="multi-note">여러 개 선택할 수 있습니다.</div>`;
+        q.opts.forEach((o, i) => {
+            h += `<div class="opt${isSelected(q, o) ? ' sel' : ''}" onclick="pick(${i})">${htmlEsc(o)}</div>`;
+        });
+    }
+
+    document.getElementById('question-area').innerHTML = h;
+    document.getElementById('btn-prev').disabled = currentStep === 0;
+    document.getElementById('btn-next').textContent = currentStep === total - 1 ? '문진완료' : '다음';
+    document.getElementById('btn-next').disabled = false;
+
+    const ta = document.getElementById('text-answer');
+    if (ta) autoGrow(ta);
+}
+
+// 자유 서술형 입력칸이 작성 분량에 맞춰 세로로 늘어나도록 (스크롤 없이 전체 내용이 보이게).
+function autoGrow(el) {
+    el.style.height = 'auto';
+    el.style.height = el.scrollHeight + 'px';
+}
+
+function pick(optIdx) {
+    const q = visibleSkinQ(answers)[currentStep];
+    applySkinPick(answers, q, q.opts[optIdx]);
+    render();
+}
+
+function saveTextAnswer(q) {
+    if (q.type !== 'text') return;
+    const ta = document.getElementById('text-answer');
+    if (!ta) return;
+    if (ta.value.trim()) answers[q.id] = ta.value;
+    else delete answers[q.id];
+}
+
+function prevQuestion() {
+    saveTextAnswer(visibleSkinQ(answers)[currentStep]);
+    if (currentStep > 0) { currentStep--; render(); window.scrollTo(0, 0); }
+}
+
+function nextQuestion() {
+    const list = visibleSkinQ(answers);
+    const q = list[currentStep];
+    saveTextAnswer(q);
+    if (q.required && !answers[q.id]) { alert('시술 안전을 위해 꼭 필요한 문항입니다. 답변을 선택해주세요.'); return; }
+    // 답변에 따라 뒤따르는 문항이 달라질 수 있어, 문항 목록을 다시 계산합니다.
+    const nextList = visibleSkinQ(answers);
+    if (currentStep < nextList.length - 1) { currentStep++; render(); window.scrollTo(0, 0); }
+    else { submit(); }
+}
+
+function submit() {
+    document.getElementById('btn-next').disabled = true;
+    document.getElementById('btn-next').textContent = '제출 중...';
+
+    const payload = {
+        formType: 'skin',
+        name: patientInfo.name,
+        phone: patientInfo.phone,
+        birth_date: patientInfo.birth_date,
+        gender: patientInfo.gender,
+        summary: buildSkinSummary(answers),
+        raw: JSON.stringify(answers)
+    };
+
+    fetch(GAS_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
+        .then(() => showComplete(true))
+        .catch(() => showComplete(false));
+}
+
+function showComplete(ok) {
+    document.getElementById('phase-questions').style.display = 'none';
+    document.getElementById('phase-complete').style.display = 'block';
+    window.scrollTo(0, 0);
+    const box = document.getElementById('complete-box');
+    if (ok) {
+        box.classList.remove('error');
+        box.innerHTML = `<div class="icon">&#10004;</div><h2>문진이 완료되었습니다</h2><p>답변해주셔서 감사합니다.<br>원장님께서 확인 후 상담해드리겠습니다.<br>잠시만 기다려주세요.</p>`;
+    } else {
+        box.classList.add('error');
+        box.innerHTML = `<div class="icon">&#10060;</div><h2>제출 중 문제가 발생했습니다</h2><p>네트워크 연결을 확인하시고,<br>계속 안되면 접수처 직원에게 알려주세요.</p>`;
+    }
+}
+</script>
+</body>
+</html>

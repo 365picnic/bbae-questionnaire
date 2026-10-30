@@ -62,6 +62,7 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-seri
 .form-tab:hover { border-color: var(--brand-2); }
 .form-tab.herbal.active { background: linear-gradient(135deg, var(--brand-1), var(--brand-2)); color: #fff; border-color: transparent; box-shadow: var(--shadow-sm); }
 .form-tab.diet.active { background: linear-gradient(135deg, var(--c-orange), #f59e0b); color: #fff; border-color: transparent; box-shadow: var(--shadow-sm); }
+.form-tab.skin.active { background: linear-gradient(135deg, var(--c-pink), #f472b6); color: #fff; border-color: transparent; box-shadow: var(--shadow-sm); }
 .p-list { flex: 1; overflow-y: auto; }
 .p-item { padding: 12px 16px; border-bottom: 1px solid var(--line-soft); cursor: pointer; transition: background .1s; display: flex; gap: 10px; align-items: flex-start; }
 .p-item:hover { background: #f7f8fd; }
@@ -242,6 +243,21 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-seri
 .dai-ev { font-size: 10.5px; color: var(--ink-300); margin-top: 2px; }
 .dai-safety { padding-left: 18px; }
 .dai-safety li { font-size: 11.5px; color: var(--danger); margin-bottom: 4px; line-height: 1.5; }
+.dai-add { margin-top: 4px; background: var(--c-pink-soft); color: var(--c-pink); border: none; border-radius: 8px; padding: 3px 9px; font-size: 11px; font-weight: 700; cursor: pointer; }
+
+/* 피부문진: 시술 전 확인 배너 / 시술 계획 */
+.skin-alert { background: var(--danger-soft); border: 1px solid var(--danger); border-radius: var(--radius-md); padding: 12px 16px; margin-bottom: 18px; }
+.skin-alert h3 { font-size: 13px; color: var(--danger); margin-bottom: 6px; }
+.skin-alert li { font-size: 12.5px; color: var(--ink-900); line-height: 1.6; margin-left: 16px; }
+.skin-plan-add { display: grid; grid-template-columns: 1fr 1fr 52px; gap: 6px; margin-bottom: 8px; }
+.skin-plan-add select, .skin-plan-add input { min-width: 0; width: 100%; padding: 7px 6px; border: 1px solid var(--line); border-radius: 8px; font-size: 12px; background: var(--surface); color: var(--ink-900); }
+.skin-plan-add select:first-child { grid-column: 1 / -1; }
+.skin-plan-row { display: flex; align-items: center; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--line-soft); font-size: 12px; color: var(--ink-700); }
+.skin-plan-row .nm { flex: 1; min-width: 0; }
+.skin-plan-row .nm b { display: block; color: var(--ink-900); font-size: 12.5px; }
+.skin-plan-row .amt { font-weight: 700; color: var(--ink-900); white-space: nowrap; }
+.skin-plan-total { display: flex; justify-content: space-between; margin-top: 10px; font-size: 13px; font-weight: 800; color: var(--c-pink); }
+.skin-plan-empty { font-size: 11.5px; color: var(--ink-300); padding: 6px 0; }
 
 /* 처방 기록 / 전화 예정일 - 원장님이 처방한 날짜와, 그 약 복용 10일쯤 후 상태 확인 전화 예정일을 관리 */
 .ship-add { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; align-items: center; }
@@ -440,8 +456,9 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-seri
     <div class="sidebar">
       <div class="sidebar-hdr">
         <div class="form-tabs">
-          <div class="form-tab herbal active" id="tab-herbal" onclick="switchForm('herbal')">🌿 한약문진</div>
-          <div class="form-tab diet" id="tab-diet" onclick="switchForm('diet')">🥗 다이어트문진</div>
+          <div class="form-tab herbal active" id="tab-herbal" onclick="switchForm('herbal')">🌿 한약</div>
+          <div class="form-tab diet" id="tab-diet" onclick="switchForm('diet')">🥗 다이어트</div>
+          <div class="form-tab skin" id="tab-skin" onclick="switchForm('skin')">💆 피부</div>
         </div>
         <input type="text" id="search" placeholder="이름 또는 전화번호 검색" oninput="renderList()">
       </div>
@@ -477,6 +494,7 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-seri
 <script src="growth-data.js"></script>
 <script src="questions.js"></script>
 <script src="questions-diet.js"></script>
+<script src="questions-skin.js"></script>
 <script>
 // docs/index.html 의 GAS_URL 과 동일한 주소를 사용합니다.
 const GAS_URL = "https://script.google.com/macros/s/AKfycbyirQpWwVxqynWl31MZTTDNKCdSqQYqZgUgOKEWILaFV_bFuBoDLGdj_144ajtnGd-dbQ/exec";
@@ -503,7 +521,7 @@ let records = [];
 let selectedIdx = null;
 
 // 한약문진 / 다이어트문진 탭 전환용. 두 탭의 목록·선택 상태는 서로 독립적으로 유지합니다.
-let activeForm = 'herbal'; // 'herbal' | 'diet'
+let activeForm = 'herbal'; // 'herbal' | 'diet' | 'skin'
 let dietRecords = [];
 let selectedDietIdx = null;
 let dietNotes = { memo: '' };
@@ -512,6 +530,13 @@ let editingDietRowNum = null;
 // 한약 문진의 answers와 이름이 겹치지 않도록 별도 변수로 둡니다.
 let dietAnswers = {};
 let hasEditableDietAnswers = false;
+// 피부 문진 탭 상태 (questions-skin.js 의 SKIN_Q/visibleSkinQ/buildSkinSummary가 쓰는 답변은 skinAnswers).
+let skinRecords = [];
+let selectedSkinIdx = null;
+let skinNotes = { memo: '', plan: [] };
+let editingSkinRowNum = null;
+let skinAnswers = {};
+let hasEditableSkinAnswers = false;
 
 // 문진 답변 수정용 (questions.js 의 Q/visibleQ/buildSummary 가 참조하는 전역 변수).
 // 환자를 새로 선택했을 때만 r.raw로 채우고, 그 이후 같은 환자를 다시 그릴 때는
@@ -549,6 +574,7 @@ let calEditingShipId = null;
 
 loadData();
 loadDietData();
+loadSkinData();
 
 // ===== 날짜 계산 유틸: 처방일 → 택배 도착 예상일 → 전화 예정일(복용 10일쯤 후) =====
 // 생년월일과 같은 이유로, Date 객체를 시각(시/분/초, 시간대)까지 다루지 않고
@@ -624,6 +650,7 @@ function genderClass(g) {
 function refreshAll() {
   loadData();
   loadDietData();
+  loadSkinData();
 }
 
 // 좁은 화면(모바일)에서는 목록과 상세를 한 화면씩 번갈아 보여줍니다.
@@ -658,6 +685,7 @@ function switchForm(form) {
   activeForm = form;
   document.getElementById('tab-herbal').classList.toggle('active', form === 'herbal');
   document.getElementById('tab-diet').classList.toggle('active', form === 'diet');
+  document.getElementById('tab-skin').classList.toggle('active', form === 'skin');
   document.getElementById('search').value = '';
   renderList();
   document.getElementById('detail').innerHTML = '<div class="detail-empty">왼쪽 목록에서 환자를 선택해주세요.</div>';
@@ -700,6 +728,20 @@ async function loadDietData() {
   } catch (e) { /* 조용히 실패 - 다음 새로고침에서 재시도 */ }
 }
 
+async function loadSkinData() {
+  try {
+    const data = await fetchJsonWithRetry(GAS_URL + '?key=' + encodeURIComponent(adminKey) + '&type=skin');
+    if (Array.isArray(data)) {
+      skinRecords = data.map(normalizeRecord);
+      if (activeForm === 'skin') {
+        renderList();
+        if (selectedSkinIdx !== null) renderSkinDetail(selectedSkinIdx);
+      }
+      updateTimestamp();
+    }
+  } catch (e) { /* 조용히 실패 - 다음 새로고침에서 재시도 */ }
+}
+
 async function loadData() {
   const statusEl = document.getElementById('last-updated');
   if (statusEl && records.length === 0) statusEl.textContent = '불러오는 중...';
@@ -733,15 +775,16 @@ function renderList() {
   const kw = (document.getElementById('search').value || '').trim();
   const list = document.getElementById('p-list');
   const isDiet = activeForm === 'diet';
-  const src = isDiet ? dietRecords : records;
-  const curIdx = isDiet ? selectedDietIdx : selectedIdx;
-  const openFn = isDiet ? 'renderDietDetail' : 'renderDetail';
+  const isSkin = activeForm === 'skin';
+  const src = isSkin ? skinRecords : (isDiet ? dietRecords : records);
+  const curIdx = isSkin ? selectedSkinIdx : (isDiet ? selectedDietIdx : selectedIdx);
+  const openFn = isSkin ? 'renderSkinDetail' : (isDiet ? 'renderDietDetail' : 'renderDetail');
   const filtered = src
     .map((r, i) => ({ r, i }))
     .filter(({ r }) => !kw || (r.name || '').includes(kw) || (r.phone || '').includes(kw));
 
   if (filtered.length === 0) {
-    list.innerHTML = `<div class="empty-list">아직 접수된 ${isDiet ? '다이어트' : '한약'} 문진이 없습니다.</div>`;
+    list.innerHTML = `<div class="empty-list">아직 접수된 ${isSkin ? '피부' : (isDiet ? '다이어트' : '한약')} 문진이 없습니다.</div>`;
     return;
   }
 
@@ -771,8 +814,10 @@ function deleteRecord(rowNum, name) {
   if (!confirm(`${name}님의 문진 기록을 정말 삭제하시겠습니까?\n\n구글시트에서 완전히 삭제되며, 되돌릴 수 없습니다.`)) return;
 
   const isDiet = activeForm === 'diet';
+  const isSkin = activeForm === 'skin';
   const payload = { action: 'delete', key: adminKey, rowNum: rowNum };
   if (isDiet) payload.formType = 'diet';
+  if (isSkin) payload.formType = 'skin';
   fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) })
     .then(res => res.json())
     .then(data => {
@@ -781,6 +826,16 @@ function deleteRecord(rowNum, name) {
         return;
       }
       // rowNum이 밀려서 다른 환자들의 행 번호도 바뀌므로, 서버에서 다시 불러와 목록을 맞춥니다.
+      if (isSkin) {
+        if (selectedSkinIdx !== null && skinRecords[selectedSkinIdx] && skinRecords[selectedSkinIdx].rowNum === rowNum) {
+          selectedSkinIdx = null;
+          editingSkinRowNum = null;
+          document.getElementById('detail').innerHTML = '<div class="detail-empty">왼쪽 목록에서 환자를 선택해주세요.</div>';
+          exitMobileDetail();
+        }
+        loadSkinData();
+        return;
+      }
       if (isDiet) {
         if (selectedDietIdx !== null && dietRecords[selectedDietIdx] && dietRecords[selectedDietIdx].rowNum === rowNum) {
           selectedDietIdx = null;
@@ -1597,6 +1652,7 @@ function renderDetail(i) {
   selectedIdx = i;
   renderList();
   const r = records[i];
+  selectedGender = r.gender || null; // 다른 탭을 다녀오면 값이 바뀌어 있으므로, 그릴 때마다 맞춥니다.
 
   let editableAnswers = null;
   try { editableAnswers = r.raw ? JSON.parse(r.raw) : null; } catch (e) { editableAnswers = null; }
@@ -2566,6 +2622,7 @@ function renderDietDetail(i) {
   selectedDietIdx = i;
   renderList();
   const r = dietRecords[i];
+  selectedGender = r.gender || null; // 다른 탭을 다녀오면 값이 바뀌어 있으므로, 그릴 때마다 맞춥니다.
 
   let editableDietAnswers = null;
   try { editableDietAnswers = r.raw ? JSON.parse(r.raw) : null; } catch (e) { editableDietAnswers = null; }
@@ -2779,6 +2836,316 @@ function saveDietAll(rowNum) {
         r.weight = payload.weight;
         if (hasEditableDietAnswers) { r.raw = payload.raw; r.summary = payload.summary; }
         r.goal = payload.goal;
+      }
+      setSaveStatus('저장되었습니다 (' + new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) + ')', 'ok');
+    })
+    .catch(() => {
+      setSaveStatus('저장 실패 - 네트워크를 확인해주세요.', 'err');
+    });
+}
+// ===== 피부문진 탭 =====
+// 다이어트 탭과 같은 구성이되, 체형 대신 "시술 전 확인" 배너와 시술 계획(가격 합계)이 들어갑니다.
+function won(n) { return Number(n || 0).toLocaleString('ko-KR') + '원'; }
+
+function editSkinPick(qId, optIdx) {
+  const q = SKIN_Q.find(x => x.id === qId);
+  applySkinPick(skinAnswers, q, q.opts[optIdx]);
+  renderSkinDetail(selectedSkinIdx);
+}
+
+function editSkinPickText(qId, val) {
+  if (val && val.trim()) skinAnswers[qId] = val.trim();
+  else delete skinAnswers[qId];
+  renderSkinDetail(selectedSkinIdx);
+}
+
+function renderSkinQuestionRow(q) {
+  if (q.type === 'text') {
+    return `<div class="qa-row"><span class="q">${esc(q.title)}</span></div><div class="edit-opts">` +
+      `<textarea style="width:100%;min-height:60px;padding:8px;border:1px solid #ddd;border-radius:6px;font-size:13.5px;box-sizing:border-box;" ` +
+      `onchange="editSkinPickText('${q.id}', this.value)">${esc(skinAnswers[q.id] || '')}</textarea></div>`;
+  }
+  const inputType = q.type === 'multi' ? 'checkbox' : 'radio';
+  let h = `<div class="qa-row"><span class="q">${esc(q.title)}</span></div><div class="edit-opts">`;
+  q.opts.forEach((o, i) => {
+    const checked = q.type === 'single' ? skinAnswers[q.id] === o : (skinAnswers[q.id] || []).includes(o);
+    h += `<label class="edit-opt"><input type="${inputType}" name="edit_skin_${q.id}" ${checked ? 'checked' : ''} onclick="editSkinPick('${q.id}', ${i})"> ${esc(o)}</label>`;
+  });
+  h += `</div>`;
+  return h;
+}
+
+function buildSkinEditableCats() {
+  const cats = [];
+  let cur = null;
+  visibleSkinQ(skinAnswers).forEach(q => {
+    if (!cur || cur.name !== q.cat) { cur = { name: q.cat, rows: [] }; cats.push(cur); }
+    cur.rows.push(renderSkinQuestionRow(q));
+  });
+  return moveCatToFront(cats, '건강·안전');
+}
+
+// 환자 답변 중 시술 전에 꼭 봐야 할 항목을 AI와 상관없이 맨 위에 모아 보여줍니다.
+function renderSkinAlert() {
+  const items = [];
+  const picked = id => (skinAnswers[id] || []).filter(v => v !== SKIN_NONE && v !== '없음');
+  const push = (label, list) => { if (list.length) items.push(`${label}: ${list.join(', ')}`); };
+  if (selectedGender === '여자') push('임신·수유', picked('preg_lactation'));
+  push('건강 상태', picked('safety'));
+  push('알레르기', picked('allergy'));
+  push('복용 약', picked('meds'));
+  if (skinAnswers.trouble === '있음') items.push('이전 시술·화장품 트러블 있음' + (skinAnswers.trouble_detail ? ': ' + skinAnswers.trouble_detail : ''));
+  if (skinAnswers.recent_irritation === '있음') items.push('최근 2주 내 자극 있음' + (skinAnswers.recent_irritation_detail ? ': ' + skinAnswers.recent_irritation_detail : ''));
+  if (!items.length) return '';
+  return `<div class="skin-alert"><h3>⚠️ 시술 전 확인 필요</h3><ul>${items.map(t => `<li>${esc(t)}</li>`).join('')}</ul></div>`;
+}
+
+function renderSkinDetail(i) {
+  selectedSkinIdx = i;
+  renderList();
+  const r = skinRecords[i];
+  selectedGender = r.gender || null; // questions-skin.js의 성별 조건 문항이 참조
+
+  let editable = null;
+  try { editable = r.raw ? JSON.parse(r.raw) : null; } catch (e) { editable = null; }
+
+  // 환자를 새로 열었을 때만 원본 값으로 초기화합니다 (상담메모 작성 중 내용이 지워지지 않도록).
+  if (editingSkinRowNum !== r.rowNum) {
+    skinAnswers = editable || {};
+    let parsedNotes = null;
+    try { parsedNotes = r.doctorNotes ? JSON.parse(r.doctorNotes) : null; } catch (e) { parsedNotes = null; }
+    skinNotes = (parsedNotes && typeof parsedNotes === 'object') ? Object.assign({ memo: '' }, parsedNotes) : { memo: '' };
+    if (!Array.isArray(skinNotes.plan)) skinNotes.plan = [];
+    editingSkinRowNum = r.rowNum;
+  }
+  hasEditableSkinAnswers = !!editable;
+
+  let h = `<div class="patient-card">
+    <div class="name">${esc(r.name || '(이름없음)')}${r.gender ? `<span class="gender-tag ${genderClass(r.gender)}">${esc(r.gender)}</span>` : ''}</div>
+    <div class="field">전화번호<b>${esc(r.phone || '-')}</b></div>
+    <div class="field">생년월일<b>${esc(r.birthDate || '-')} ${esc(ageLabel(r))}</b></div>
+    <div class="field">제출일시<b>${r.submittedAt ? new Date(r.submittedAt).toLocaleString('ko-KR') : '-'}</b></div>
+  </div>`;
+  h += renderSkinAlert();
+
+  h += `<div class="cat-grid">`;
+  if (hasEditableSkinAnswers) {
+    buildSkinEditableCats().forEach(cat => {
+      h += `<div class="cat-card"><div class="cat-hdr">${esc(cat.name)}</div><div class="cat-body">${cat.rows.join('')}</div></div>`;
+    });
+  } else {
+    parseSummary(r.summary).forEach(cat => {
+      h += `<div class="cat-card"><div class="cat-hdr">${esc(cat.name)}</div><div class="cat-body">`;
+      cat.rows.forEach(row => {
+        h += `<div class="qa-row"><span class="q">${esc(row.q)}</span><br><span class="a">${esc(row.a)}</span></div>`;
+      });
+      h += `</div></div>`;
+    });
+  }
+  h += `</div>`;
+  h += `<div class="raw-toggle" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display==='block' ? 'none' : 'block'">원본 데이터 보기(백업용)</div>`;
+  h += `<div class="raw-box">${esc(r.raw || '')}</div>`;
+
+  let side = `<div class="save-bar top">
+    <button onclick="saveSkinAll(${r.rowNum})">💾 저장</button>
+    <span class="save-status" id="save-status"></span>
+  </div>`;
+  side += `<div class="side-box memo">
+    <div class="side-box-hdr"><h3>📝 상담메모</h3><button class="side-btn ghost" onclick="toggleBig('skin-memo-note', this)">크게보기</button></div>
+    <textarea class="memo-textarea" id="skin-memo-note" oninput="skinNotes.memo=this.value" placeholder="상담 중 원장님 의견을 적어주세요...">${esc(skinNotes.memo || '')}</textarea>
+  </div>`;
+  side += renderSkinAiBox(r);
+  side += renderSkinPlanBox();
+  side += `<div class="save-bar">
+    <button onclick="saveSkinAll(${r.rowNum})">💾 저장</button>
+    <span class="save-status"></span>
+  </div>`;
+
+  document.getElementById('detail').innerHTML =
+    `<div class="two-col"><div class="col-main">${h}</div><div class="col-side">${side}</div></div>`;
+  enterMobileDetail();
+}
+
+// ----- 시술 계획: 가격표에서 시술을 골라 담으면 합계를 보여줍니다. 그 시점 가격을 함께 저장합니다.
+function renderSkinPlanBox() {
+  let optgroups = '';
+  let curCat = null;
+  SKIN_TREATMENTS.forEach((t, i) => {
+    if (t.cat !== curCat) {
+      if (curCat !== null) optgroups += '</optgroup>';
+      optgroups += `<optgroup label="${esc(t.cat)}">`;
+      curCat = t.cat;
+    }
+    optgroups += `<option value="${i}">${esc(t.name)}</option>`;
+  });
+  optgroups += '</optgroup>';
+
+  const plan = skinNotes.plan || [];
+  const rows = plan.map((p, i) => `<div class="skin-plan-row">
+      <div class="nm"><b>${esc(p.name)}</b>${esc(p.option)}${p.qty > 1 ? ' × ' + p.qty : ''}</div>
+      <span class="amt">${won(p.price * p.qty)}${p.fromPrice ? '~' : ''}</span>
+      <button class="ship-del" onclick="removeSkinPlan(${i})">삭제</button>
+    </div>`).join('');
+  const total = plan.reduce((sum, p) => sum + p.price * p.qty, 0);
+  return `<div class="side-box presc">
+    <div class="side-box-hdr"><h3>💆 시술 계획</h3></div>
+    <div class="skin-plan-add">
+      <select id="skin-plan-t" onchange="updateSkinPlanOptions()"><option value="">시술을 선택해주세요</option>${optgroups}</select>
+      <select id="skin-plan-o"><option value="">회차/단위</option></select>
+      <input type="number" id="skin-plan-q" min="1" value="1" title="수량">
+      <button class="side-btn" style="grid-column:1 / -1" onclick="addSkinPlan()">+ 시술 담기</button>
+    </div>
+    ${rows || '<div class="skin-plan-empty">아직 담긴 시술이 없습니다.</div>'}
+    ${plan.length ? `<div class="skin-plan-total"><span>합계 (할인 전)</span><span>${won(total)}${plan.some(p => p.fromPrice) ? '~' : ''}</span></div>` : ''}
+  </div>`;
+}
+
+function updateSkinPlanOptions() {
+  const t = SKIN_TREATMENTS[document.getElementById('skin-plan-t').value];
+  document.getElementById('skin-plan-o').innerHTML = t
+    ? t.options.map((o, i) => `<option value="${i}">${esc(o.label)} ${won(o.price)}${o.fromPrice ? '~' : ''}</option>`).join('')
+    : '<option value="">회차/단위</option>';
+}
+
+function pushSkinPlan(t, o, qty) {
+  skinNotes.plan.push({ name: t.name, option: o.label, price: o.price, qty: qty, fromPrice: !!o.fromPrice });
+  saveSkinAll(editingSkinRowNum);
+  renderSkinDetail(selectedSkinIdx);
+}
+
+function addSkinPlan() {
+  const t = SKIN_TREATMENTS[document.getElementById('skin-plan-t').value];
+  if (!t) { alert('시술을 선택해주세요.'); return; }
+  const o = t.options[document.getElementById('skin-plan-o').value] || t.options[0];
+  const qty = Math.max(1, parseInt(document.getElementById('skin-plan-q').value, 10) || 1);
+  pushSkinPlan(t, o, qty);
+}
+
+function removeSkinPlan(i) {
+  skinNotes.plan.splice(i, 1);
+  saveSkinAll(editingSkinRowNum);
+  renderSkinDetail(selectedSkinIdx);
+}
+
+// AI가 추천한 시술을 시술 계획에 담습니다. 첫 번째 단위(보통 1회)로 담기며, 필요하면 지우고 다시 고르면 됩니다.
+function addAiSkinPlan(name) {
+  const t = SKIN_TREATMENTS.find(x => x.name === name);
+  if (t) pushSkinPlan(t, t.options[0], 1);
+}
+
+// ----- AI 피부 분석: 이름·전화번호는 보내지 않습니다.
+function buildSkinPatientDataForAi(r) {
+  const y = r.birthDate ? ageInYears(r.birthDate) : null;
+  const lines = [];
+  lines.push('[기본 정보]');
+  lines.push(`나이: ${y === null || y === undefined ? '미기재' : y + '세'} / 성별: ${r.gender || '미기재'}`);
+  lines.push('');
+  lines.push('[피부 문진 답변]');
+  lines.push((hasEditableSkinAnswers ? buildSkinSummary(skinAnswers) : r.summary) || '(답변 없음)');
+  lines.push('');
+  lines.push('[원장 상담메모]');
+  lines.push(skinNotes.memo || '(없음)');
+  return lines.join('\n');
+}
+
+function runSkinAiAnalyze(rowNum) {
+  const status = document.getElementById('skin-ai-status');
+  const resultEl = document.getElementById('skin-ai-result');
+  const btn = document.getElementById('skin-ai-run-btn');
+  if (btn) btn.disabled = true;
+  if (status) { status.textContent = 'AI가 분석 중입니다... (10~20초 정도 걸릴 수 있어요)'; status.className = 'ai-status'; }
+  if (resultEl) resultEl.innerHTML = '';
+
+  const r = skinRecords[selectedSkinIdx];
+  const payload = { action: 'skin_ai_analyze', key: adminKey, rowNum: rowNum, patientData: buildSkinPatientDataForAi(r), catalog: buildSkinCatalogText() };
+
+  fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) })
+    .then(res => res.json())
+    .then(data => {
+      if (btn) btn.disabled = false;
+      if (!data || data.status !== 'ok') {
+        if (status) { status.textContent = (data && data.message) || 'AI 분석에 실패했습니다.'; status.className = 'ai-status err'; }
+        return;
+      }
+      if (r && r.rowNum === rowNum) r.aiResult = JSON.stringify(data.result); // 구글시트에도 이미 저장됨 - 화면에서도 바로 반영
+      if (status) status.textContent = '';
+      if (resultEl) resultEl.innerHTML = renderSkinAiResult(data.result);
+      if (btn) btn.textContent = '🤖 AI 피부 분석 다시 실행';
+    })
+    .catch(() => {
+      if (btn) btn.disabled = false;
+      if (status) { status.textContent = '서버에 연결하지 못했습니다. 네트워크를 확인해주세요.'; status.className = 'ai-status err'; }
+    });
+}
+
+function renderSkinAiResult(a) {
+  const arr = v => Array.isArray(v) ? v.filter(Boolean) : [];
+  let h = '';
+  if (a.current_status) h += `<div class="dai-sec"><h4>📍 현재 상태</h4><div class="dai-status">${esc(a.current_status)}</div></div>`;
+  const problems = arr(a.problems);
+  if (problems.length) {
+    h += `<div class="dai-sec"><h4>⚠️ 문제점</h4>`;
+    problems.forEach(p => {
+      h += `<div class="dai-item prob"><b>${esc(p.title || '')}</b>${p.detail ? `<div>${esc(p.detail)}</div>` : ''}${p.evidence ? `<div class="dai-ev">근거: ${esc(p.evidence)}</div>` : ''}</div>`;
+    });
+    h += `</div>`;
+  }
+  const rec = arr(a.recommended);
+  if (rec.length) {
+    h += `<div class="dai-sec"><h4>✅ 후보 시술</h4>`;
+    rec.forEach(p => {
+      // 가격표에 있는 이름일 때만 담기 버튼을 보여줍니다.
+      const known = SKIN_TREATMENTS.some(t => t.name === p.name);
+      h += `<div class="dai-item sol"><b>${esc(p.name || '')}</b>${p.reason ? `<div>${esc(p.reason)}</div>` : ''}` +
+        (known ? `<button class="dai-add" onclick="addAiSkinPlan('${escJsAttr(p.name)}')">시술 계획에 담기</button>` : '') + `</div>`;
+    });
+    h += `</div>`;
+  }
+  const caution = arr(a.caution_treatments);
+  if (caution.length) {
+    h += `<div class="dai-sec"><h4>🚫 피하거나 주의할 시술</h4>`;
+    caution.forEach(p => { h += `<div class="dai-item prob"><b>${esc(p.name || '')}</b>${p.reason ? `<div>${esc(p.reason)}</div>` : ''}</div>`; });
+    h += `</div>`;
+  }
+  const safety = arr(a.safety_checks);
+  if (safety.length) h += `<div class="dai-sec"><h4>🛑 시술 전 안전 확인</h4><ul class="dai-safety">${safety.map(c => `<li>${esc(c)}</li>`).join('')}</ul></div>`;
+  const qs = arr(a.questions_to_ask);
+  if (qs.length) {
+    const qLines = qs.map(q => {
+      const questionText = typeof q === 'string' ? q : (q.question || '');
+      const reasonText = typeof q === 'object' && q.reason ? q.reason : '';
+      return `<li>${esc(questionText)}${reasonText ? `<div class="ai-q-reason">${esc(reasonText)}</div>` : ''}</li>`;
+    }).join('');
+    h += `<div class="ai-questions"><h4>상담 때 추가로 확인하면 좋은 질문</h4><ul>${qLines}</ul></div>`;
+  }
+  return h;
+}
+
+function renderSkinAiBox(r) {
+  let saved = null;
+  try { saved = r.aiResult ? JSON.parse(r.aiResult) : null; } catch (e) { saved = null; }
+  return `<div class="side-box ai">
+    <div class="side-box-hdr"><h3>✨ AI 피부 분석</h3></div>
+    <button class="ai-run-btn" id="skin-ai-run-btn" onclick="runSkinAiAnalyze(${r.rowNum})">🤖 ${saved ? 'AI 피부 분석 다시 실행' : 'AI 피부 분석 실행'}</button>
+    <div class="ai-note">문진 답변·상담메모와 시술 목록을 바탕으로 현재 상태, 문제점, 후보 시술, 주의사항을 정리합니다. 참고자료이며 최종 판단은 원장님이 직접 해주세요.</div>
+    <div class="ai-status" id="skin-ai-status"></div>
+    <div id="skin-ai-result">${saved ? renderSkinAiResult(saved) : ''}</div>
+  </div>`;
+}
+
+function saveSkinAll(rowNum) {
+  setSaveStatus('저장 중...', '');
+  const payload = { action: 'update', key: adminKey, rowNum: rowNum, formType: 'skin', notes: JSON.stringify(skinNotes) };
+  if (hasEditableSkinAnswers) {
+    payload.raw = JSON.stringify(skinAnswers);
+    payload.summary = buildSkinSummary(skinAnswers);
+  }
+  fetch(GAS_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
+    .then(() => {
+      const r = skinRecords.find(x => x.rowNum === rowNum);
+      if (r) {
+        r.doctorNotes = payload.notes;
+        if (hasEditableSkinAnswers) { r.raw = payload.raw; r.summary = payload.summary; }
       }
       setSaveStatus('저장되었습니다 (' + new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) + ')', 'ok');
     })

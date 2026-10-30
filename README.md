@@ -6,6 +6,7 @@
 
 - `docs/index.html` — 환자가 작성하는 문진표 화면. GitHub Pages로 배포됩니다.
 - `docs/questions.js` — 문진 항목 목록(문진표/관리자페이지 공용). 문항을 고치거나 추가할 땐 이 파일만 수정하면 됩니다.
+- `docs/skin.html`, `docs/questions-skin.js` — 빼빼한의원 전용 피부미용 문진. 문항과 시술 가격표(`SKIN_TREATMENTS`)는 `questions-skin.js`만 고치면 관리자페이지와 AI 분석에 함께 반영됩니다.
 - `docs/admin.html` — 원장님이 보는 관리자페이지. 비밀번호로 잠겨 있고, 문진 답변 수정·주증상(CC)/메모 작성·AI 처방 추천 기능이 있습니다.
 - `google-apps-script/Code.gs` — 문진 답변을 구글 시트에 저장하고, 관리자페이지의 수정·저장·AI 추천 요청을 처리하는 스크립트.
 - `google-apps-script/PrescriptionKnowledge.gs` — AI 처방 추천 기능이 참고하는 한의학 임상 지식베이스(텍스트). Code.gs와 함께 Apps Script 프로젝트에 넣어야 합니다.

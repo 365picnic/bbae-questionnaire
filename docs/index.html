@@ -35,12 +35,14 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-seri
 .pick-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
 .pick-card.diet { border-top: 5px solid var(--c-orange); }
 .pick-card.herbal { border-top: 5px solid var(--brand-1); }
+.pick-card.skin { border-top: 5px solid #c43d73; }
 .pick-card .emoji { font-size: 34px; margin-bottom: 10px; }
 .pick-card h2 { font-size: 19px; font-weight: 800; color: var(--ink-900); margin-bottom: 6px; letter-spacing: -0.01em; }
 .pick-card p { font-size: 13px; color: var(--ink-500); line-height: 1.6; margin-bottom: 14px; }
 .pick-card .go-btn { display: inline-block; padding: 11px 20px; border-radius: var(--radius-md); font-size: 13.5px; font-weight: 700; color: #fff; }
 .pick-card.diet .go-btn { background: linear-gradient(135deg, var(--c-orange), #f59e0b); }
 .pick-card.herbal .go-btn { background: linear-gradient(135deg, var(--brand-1), var(--brand-2)); }
+.pick-card.skin .go-btn { background: linear-gradient(135deg, #c43d73, #e0719c); }
 </style>
 </head>
 <body>
@@ -62,6 +64,13 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-seri
         <h2>한약 문진</h2>
         <p>일반 한약 처방을 위한 사전문진입니다. 수면, 소화, 체온, 감정 등 전반적인 몸 상태를 입력합니다.</p>
         <span class="go-btn">한약 문진 시작하기 →</span>
+    </a>
+
+    <a class="pick-card skin" href="skin.html">
+        <div class="emoji">💆</div>
+        <h2>피부미용 문진</h2>
+        <p>피부 시술 상담을 위한 문진입니다. 피부 고민, 시술 이력, 건강 상태 등을 입력합니다.</p>
+        <span class="go-btn">피부미용 문진 시작하기 →</span>
     </a>
 </div>
 </body>

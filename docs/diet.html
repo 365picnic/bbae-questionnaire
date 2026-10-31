@@ -89,9 +89,10 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-seri
 .opt.plan-3 { border-left: 4px solid var(--gold); }
 .opt.plan-3.sel { background: linear-gradient(135deg, var(--gold), var(--gold-2)); }
 
-/* 첫 화면 - 모델 배너 & 감량 속도 안내표 */
-.model-banner { width: 100%; border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 18px; box-shadow: var(--shadow-md); }
+/* 첫 화면 - 모델 배너 & 감량 속도 안내표. 사진 안에 로고가 있어 첫 화면에서는 로고 머리글 대신 사진만 둡니다 */
+.model-banner { width: 100%; border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 16px; box-shadow: var(--shadow-md); }
 .model-banner img { width: 100%; display: block; }
+.page-title { text-align: center; font-size: 18px; font-weight: 800; color: var(--ink-900); margin-bottom: 16px; letter-spacing: -0.01em; }
 .rate-intro { font-size: 13px; color: var(--ink-700); line-height: 1.6; margin-bottom: 12px; text-align: center; }
 .rate-table { width: 100%; border-collapse: collapse; margin-bottom: 22px; border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-sm); }
 .rate-table th { background: linear-gradient(135deg, var(--brand-1), var(--brand-2)); color: #fff; font-size: 12px; padding: 10px 6px; font-weight: 700; }
@@ -139,14 +140,10 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-seri
 <body>
 <div class="container" id="app">
     <div id="phase-login">
-        <div class="header">
-            <img class="logo-img" src="assets/bbae-logo.png" alt="빼빼한의원">
-            <div class="sub">다이어트 사전문진</div>
-        </div>
-
         <div class="model-banner">
-            <img src="assets/diet-model.webp" alt="빼빼한의원 빼빼환" onerror="this.parentElement.style.display='none'">
+            <img src="assets/diet-banner.webp" alt="빼빼한의원 다이어트·스킨 클리닉" onerror="this.parentElement.style.display='none'">
         </div>
+        <div class="page-title">다이어트 사전문진</div>
 
         <p class="rate-intro">일반적으로 빼빼한의원 빼빼환을 드신 환자분들의<br>3개월 감량 속도는 다음과 같습니다.</p>
         <table class="rate-table">

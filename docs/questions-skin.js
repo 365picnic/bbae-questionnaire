@@ -56,7 +56,7 @@ const SKIN_Q = [
  opts:[
    "토닝 (기미·잡티·피부톤)",
    "LDM (수분·진정)",
-   "리프팅 (울리지오X, k-온다)",
+   "리프팅 (올리지오X, k-온다)",
    "실리프팅 (채움, 모노)",
    "스킨부스터 (ECM, 라이트라인, PLLA, 알트코어, PDRN 등)",
    "콜라겐부스터 / 탄력부스터",
@@ -234,7 +234,7 @@ const SKIN_TREATMENTS = [
 {cat:"토닝·LDM", name:"LDM", options:[{label:"1회",price:50000},{label:"10회",price:350000}]},
 {cat:"토닝·LDM", name:"토닝+LDM", options:[{label:"1회",price:100000},{label:"10회",price:660000}]},
 
-{cat:"리프팅", name:"울리지오X", options:[{label:"300샷 1회",price:450000},{label:"3회",price:945000}]},
+{cat:"리프팅", name:"올리지오X", options:[{label:"300샷 1회",price:450000},{label:"3회",price:945000}]},
 {cat:"리프팅", name:"k-온다리프팅", options:[{label:"6만줄 1회",price:150000},{label:"3회",price:315000}]},
 
 {cat:"실리프팅·부스터", name:"채움", options:[{label:"4줄",price:600000},{label:"1줄 추가",price:100000}]},

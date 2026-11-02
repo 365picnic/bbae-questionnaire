@@ -627,6 +627,12 @@ function formatPhone(v) {
   return s;
 }
 function normalizeRecord(r) { return Object.assign({}, r, { phone: formatPhone(r.phone) }); }
+// 시술명 표기를 바꾸기 전에 저장된 피부 문진은 옛 표기로 남아 있어, 불러온 직후 새 표기로 맞춥니다.
+function normalizeSkinRecord(r) {
+  const out = normalizeRecord(r);
+  Object.keys(out).forEach(k => { if (typeof out[k] === 'string') out[k] = out[k].replace(/울리지오/g, '올리지오'); });
+  return out;
+}
 
 // 목록/상세에서 성별 태그 옆에 "소아" 표시를 붙일지 판단 (growth-data.js의 isChildAge, 만 15세 이하).
 function childTagHtml(r) {
@@ -740,7 +746,7 @@ async function loadSkinData() {
   try {
     const data = await fetchJsonWithRetry(GAS_URL + '?key=' + encodeURIComponent(adminKey) + '&type=skin');
     if (Array.isArray(data)) {
-      skinRecords = data.map(normalizeRecord);
+      skinRecords = data.map(normalizeSkinRecord);
       if (activeForm === 'skin') {
         renderList();
         if (selectedSkinIdx !== null) renderSkinDetail(selectedSkinIdx);
